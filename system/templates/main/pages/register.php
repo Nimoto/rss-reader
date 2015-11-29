@@ -6,44 +6,16 @@
 		<?php
 		$arParams = array(
 				"template" => "form/MainFormChunk.php",
-				"class" => "reg",
-				"method" => "post",
-				"action" => "",
-				"fields" => array(
-							"full_name" => array(
-										"label" => "Ваше ФИО",
-										"type" => "text"
-									),
-							"login" => array(
-										"label" => "Ваш логин",
-										"type" => "text",
-										"validator" => "text"
-									),
-							"email" => array(
-										"label" => "Ваш email",
-										"type" => "text",
-										"validator" => "email"
-									),
-							"pass" => array(
-										"label" => "Ваш пароль",
-										"type" => "password",
-										"validator" => "not_empty"
-									),
-							"confirm_pass" => array(
-										"label" => "Подтвердите пароль",
-										"type" => "password",
-										"pass_field" => "pass",
-										"validator" => "confirm_pass"
-									),
-							),
-				"buttons" => array(
-							"send" => array(
-										"label" => "Сохранить",
-										"action" => "submit"
-									),
-							),
 			);
-		$authForm = new RegisterFormController($arParams);
+		
+		$authForm = new MainForm();
+		$authForm->addField(new Field("full_name", "Ваше ФИО", "text"));
+		$authForm->addField(new Field("login", "Ваш логин", "text", "text"));
+		$authForm->addField(new Field("email", "Ваш email", "text", "email"));
+		$authForm->addField(new Field("pass", "Ваш пароль", "password", "not_empty"));
+		$authForm->addField(new Field("confirm_pass", "Подтвердите пароль", "password", "confirm_pass"));
+		$authForm->addButton(new Field("send", "Сохранить", "submit"));
+		$authControl = new RegisterFormController($arParams, $authForm);
 		?>
 	</div>
 	<div class="col-md-4"></div>

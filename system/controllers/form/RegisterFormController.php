@@ -1,8 +1,8 @@
 <?php
 class RegisterFormController extends MainFormController{
 
-	function __construct($arParams = null){
-		parent::__construct($arParams);
+	function __construct($arParams = null, $form){
+		parent::__construct($arParams, $form);
 	}
 
 	function handler(){

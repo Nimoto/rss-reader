@@ -6,29 +6,13 @@
 		<?php
 		$arParams = array(
 				"template" => "form/MainFormChunk.php",
-				"class" => "auth",
-				"method" => "post",
-				"action" => "",
-				"fields" => array(
-							"login" => array(
-										"label" => "Ваш логин",
-										"type" => "text",
-										"validator" => "not_empty"
-									),
-							"pass" => array(
-										"label" => "Ваш пароль",
-										"type" => "password",
-										"validator" => "not_empty"
-									),
-							),
-				"buttons" => array(
-							"send" => array(
-										"label" => "Отправить",
-										"action" => "submit"
-									),
-							),
 			);
-		$authForm = new MainFormController($arParams);
+		
+		$authForm = new MainForm();
+		$authForm->addField(new Field("login", "Ваш логин", "text", "not_empty"));
+		$authForm->addField(new Field("pass", "Ваш пароль", "password", "not_empty"));
+		$authForm->addButton(new Field("send", "Отправить", "submit"));
+		$authControl = new MainFormController($arParams, $authForm);
 		?>
 	</div>
 	<div class="col-md-4"></div>

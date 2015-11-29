@@ -6,16 +6,19 @@ class MainFormController{
 	private $_FORMDATA;
 	private $status;
 	private $redirect_uri;
+	private $validator;
 
-	function __construct($arParams = null){
+	function __construct($arParams, $form){
 		$this->view = new View();
-		if($arParams) $this->form = new MainForm($arParams['class'], $arParams['method'], $arParams['action'], $arParams['fields'], $arParams['buttons']);
-		else $this->form = new MainForm();
-		if($arParams["method"] == "get"){
+		$this->validator = new MainValidatorController;
+		$this->form = $form;
+
+		if($this->form->getProperty("method") == "get"){
 			$this->_FORMDATA = $_GET;
 		}else $this->_FORMDATA = $_POST;
+
 		$result["error"] = $this->handler();
-		$bones = $this->form->getBones();
+		$bones = $this->formParts();
 		$data = array_merge($result, $bones);
 		$this->include_tpl($arParams['template'], $data);
 	}
@@ -27,16 +30,19 @@ class MainFormController{
 	function handler(){
 		$form = $this->form;
 		$_FORMDATA = $this->_FORMDATA;
-		$fields = $form->getFields();
-		$buttons = $form->getButtons();
-		$class = $form->getClass();
+		$fields = $form->getProperty("fields");
+		$buttons = $form->getProperty("buttons");
+		$class = $form->getProperty("class");
 		$error_message = array();
 		if(is_array($_FORMDATA)){
 			if($_FORMDATA["submit_".$class]){
 				foreach ($_FORMDATA as $name => $value) {
-					if($fields[$name]["validator"]){
-						$err = $this->validator($value, $fields[$name]["validator"], $fields[$name]["pass_field"]);
-						if($err !== true) $error_message[] = str_replace("{field}", $fields[$name]["label"], $err);
+					if($fields[$name]){
+						$valid = $fields[$name]->getProperty("validator");
+						if($valid){
+							$err = $this->validator->validator($value, $valid, $fields[$name]->getProperty("pass_field"));
+							if($err !== true) $error_message[] = str_replace("{field}", $fields[$name]->getProperty("label"), $err);
+						}
 					}
 				}
 			}
@@ -47,39 +53,37 @@ class MainFormController{
 		}else return $error_message;
 	}
 
-	private function validator($value, $rule, $pass_field = null){
-		$func_name = "validator_".$rule;
-		return $this->$func_name($value, $pass_field);
+
+	private function formParts(){
+		$form = $this->form;
+		$return = array();
+		$return["form_header"] = $this->formHeaderGener($form->getProperty("class"), $form->getProperty("action"), $form->getProperty("method"));
+		$return["fields"] = $this->fieldsGener($form->getProperty("fields"));
+		$return["buttons"] = $this->buttonsGener($form->getProperty("buttons"), $form->getProperty("class"));
+		$return["form_footer"] = "</form>";
+		return $return;
 	}
 
-	private function validator_text($value){
-		$return = $this->validator_not_empty($value);
-		if ($return === true && preg_match("/[^(\w)|(\x7F-\xFF)|(\s)]/", $value)) {
-	        $return = "В поле {field} должны быть только буквы, пробелы или цифры";
-		}
-		return $return;
+	private function formHeaderGener($class, $action, $method){
+		return "<form role='form' action='".$action."' method='".$method."' class='form-signin ".$class."'>";
 	}
-	
-	private function validator_email($value){
-		$return = $this->validator_not_empty($value);
-		if ($return === true && preg_match("/[^(\w)|(\@)|(\.)|(\-)]/", $value)) {
-	        $return = "В поле {field} должен быть корректный email";
-		}
-		return $return;
-	}
-	
-	private function validator_not_empty($value){
-		$return = true;
-		if (empty($value)) {
-	        $return = "Поле {field} обязательно для заполнения";
+
+	private function fieldsGener($arFields){
+		$return = array();
+		foreach ($arFields as $name => $arProp) {
+			$label = $arProp->getProperty("label");
+			if(!empty($arProp->getProperty("validator"))){
+				$label .= "*";
+			}
+			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value=''/>";
 		}
 		return $return;
 	}
 
-	private function validator_confirm_pass($value, $pass_field){
-		$return = $this->validator_not_empty($value);
-		if ($return === true && $value != $this->_FORMDATA[$pass_field]) {
-	        $return = "Введенные пароли не совпадают";
+	private function buttonsGener($arButtons, $form_class){
+		$return = array();
+		foreach ($arButtons as $class => $arProp) {
+			$return[] = "<input type='".$arProp->getProperty("type")."' name='".$arProp->getProperty("type")."_".$form_class."' class='btn btn-primary ".$class."' value='".$arProp->getProperty("label")."'/>";
 		}
 		return $return;
 	}
