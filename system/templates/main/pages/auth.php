@@ -13,7 +13,7 @@
 							"login" => array(
 										"label" => "Ваш логин",
 										"type" => "text",
-										"validator" => "text"
+										"validator" => "not_empty"
 									),
 							"pass" => array(
 										"label" => "Ваш пароль",

@@ -1,10 +1,12 @@
 <?php
+session_start();
 error_reporting(E_ERROR);
 require "settings.php";
 include(VIEW_PATH);
 include(MODEL_PATH."forms/MainFormClass.php");
 include(MODEL_PATH."manager/MainRouter.php");
 include(CONTROLLER_PATH."form/MainFormController.php");
+include(CONTROLLER_PATH."form/RegisterFormController.php");
 
 $_ADDRESS = $_SERVER["REQUEST_URI"];
 $pages = array(

@@ -32,6 +32,7 @@
 							"confirm_pass" => array(
 										"label" => "Подтвердите пароль",
 										"type" => "password",
+										"pass_field" => "pass",
 										"validator" => "confirm_pass"
 									),
 							),
@@ -42,7 +43,7 @@
 									),
 							),
 			);
-		$authForm = new MainFormController($arParams);
+		$authForm = new RegisterFormController($arParams);
 		?>
 	</div>
 	<div class="col-md-4"></div>
