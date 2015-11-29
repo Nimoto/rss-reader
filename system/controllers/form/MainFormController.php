@@ -9,6 +9,11 @@ class MainFormController{
 	private $validator;
 
 	function __construct($arParams, $form){
+		$this->init($arParams, $form);
+		$this->afterInit($arParams["template"]);
+	}
+
+	protected function init($arParams, $form){
 		$this->view = new View();
 		$this->validator = new MainValidatorController;
 		$this->form = $form;
@@ -16,11 +21,14 @@ class MainFormController{
 		if($this->form->getProperty("method") == "get"){
 			$this->_FORMDATA = $_GET;
 		}else $this->_FORMDATA = $_POST;
+		$_SESSION["form_".$this->form->getProperty("class")] = $this->_FORMDATA;
+	}
 
+	protected function afterInit($template){
 		$result["error"] = $this->handler();
 		$bones = $this->formParts();
 		$data = array_merge($result, $bones);
-		$this->include_tpl($arParams['template'], $data);
+		$this->include_tpl($template, $data);
 	}
 
 	function include_tpl($tpl, $data){
@@ -40,7 +48,7 @@ class MainFormController{
 					if($fields[$name]){
 						$valid = $fields[$name]->getProperty("validator");
 						if($valid){
-							$err = $this->validator->validator($value, $valid, $fields[$name]->getProperty("pass_field"));
+							$err = $this->validator->validator($value, $valid, $fields[$name]->getProperty("pass_field"), $this->_FORMDATA);
 							if($err !== true) $error_message[] = str_replace("{field}", $fields[$name]->getProperty("label"), $err);
 						}
 					}
@@ -75,7 +83,7 @@ class MainFormController{
 			if(!empty($arProp->getProperty("validator"))){
 				$label .= "*";
 			}
-			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value=''/>";
+			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value='".$_SESSION["form_".$this->form->getProperty("class")][$name]."'/>";
 		}
 		return $return;
 	}
@@ -86,6 +94,10 @@ class MainFormController{
 			$return[] = "<input type='".$arProp->getProperty("type")."' name='".$arProp->getProperty("type")."_".$form_class."' class='btn btn-primary ".$class."' value='".$arProp->getProperty("label")."'/>";
 		}
 		return $return;
+	}
+
+	public function getProperty($property_name){
+		return $this->$property_name;
 	}
 }
 ?>

@@ -13,7 +13,7 @@
 		$authForm->addField(new Field("login", "Ваш логин", "text", "text"));
 		$authForm->addField(new Field("email", "Ваш email", "text", "email"));
 		$authForm->addField(new Field("pass", "Ваш пароль", "password", "not_empty"));
-		$authForm->addField(new Field("confirm_pass", "Подтвердите пароль", "password", "confirm_pass"));
+		$authForm->addField(new Field("confirm_pass", "Подтвердите пароль", "password", "confirm_pass", "pass"));
 		$authForm->addButton(new Field("send", "Сохранить", "submit"));
 		$authControl = new RegisterFormController($arParams, $authForm);
 		?>

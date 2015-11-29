@@ -15,10 +15,10 @@ class MainRouter{
 
 	public function route($address = null){
 		if(!$address) $address = "index";
-		if(file_exists($_SERVER["DOCUMENT_ROOT"].TEMPLATE_PATH."pages/".$this->pages[$address]) && $this->pages[$address])
-			include(TEMPLATE_PATH."pages/".$this->pages[$address]);
+		if(file_exists($_SERVER["DOCUMENT_ROOT"].PAGES_PATH.$this->pages[$address]) && $this->pages[$address])
+			include(PAGES_PATH.$this->pages[$address]);
 		else
-			include(TEMPLATE_PATH."pages/404.php");
+			include(PAGES_PATH."404.php");
 	}
 }
 ?>

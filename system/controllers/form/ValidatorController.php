@@ -1,8 +1,12 @@
 <?php
 class MainValidatorController{		
-	public function validator($value, $rule, $pass_field = null){
+	public function validator($value, $rule, $pass_field = null, $_FORMDATA = null){
 		$func_name = "validator_".$rule;
-		return $this->$func_name($value, $pass_field);
+		$confirm_value = null;
+		if($pass_field){
+			$confirm_value = $_FORMDATA[$pass_field];
+		}
+		return $this->$func_name($value, $confirm_value);
 	}
 
 	private function validator_text($value){
@@ -29,9 +33,9 @@ class MainValidatorController{
 		return $return;
 	}
 
-	private function validator_confirm_pass($value, $pass_field){
+	private function validator_confirm_pass($value, $confirm_value){
 		$return = $this->validator_not_empty($value);
-		if ($return === true && $value != $this->_FORMDATA[$pass_field]) {
+		if ($return === true && $value != $confirm_value) {
 	        $return = "Введенные пароли не совпадают";
 		}
 		return $return;
