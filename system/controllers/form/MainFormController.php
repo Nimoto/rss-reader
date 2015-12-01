@@ -25,7 +25,9 @@ class MainFormController{
 	}
 
 	protected function afterInit($template){
-		$result["error"] = $this->handler();
+		$handler_result = $this->handler();
+		$status = $handler_result["status"];
+		$result[$status] = $handler_result[$status];
 		$bones = $this->formParts();
 		$data = array_merge($result, $bones);
 		$this->include_tpl($template, $data);
@@ -57,8 +59,12 @@ class MainFormController{
 		}
 
 		if(empty($error_message)){
-			return true;
-		}else return $error_message;
+			$result["status"] = "success";
+		}else{
+			$result["status"] = "error";
+			$result["error"] = $error_message;
+		}
+		return $result;
 	}
 
 
@@ -80,7 +86,8 @@ class MainFormController{
 		$return = array();
 		foreach ($arFields as $name => $arProp) {
 			$label = $arProp->getProperty("label");
-			if(!empty($arProp->getProperty("validator"))){
+			$validator = $arProp->getProperty("validator");
+			if(!empty($validator)){
 				$label .= "*";
 			}
 			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value='".$_SESSION["form_".$this->form->getProperty("class")][$name]."'/>";

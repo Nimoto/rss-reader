@@ -1,12 +1,14 @@
 <?php
 session_start();
-error_reporting(E_ERROR);
+//error_reporting(E_ERROR);
 require "settings.php";
 include(VIEW_PATH);
 include(MODEL_PATH."forms/MainFormClass.php");
 include(MODEL_PATH."forms/FieldClass.php");
 include(MODEL_PATH."manager/MainRouter.php");
+include(MODEL_PATH."manager/DataBase.php");
 include(CONTROLLER_PATH."manager/DataBaseController.php");
+include(CONTROLLER_PATH."manager/MailController.php");
 include(CONTROLLER_PATH."form/MainFormController.php");
 include(CONTROLLER_PATH."form/RegisterFormController.php");
 include(CONTROLLER_PATH."form/ValidatorController.php");
@@ -18,5 +20,6 @@ $pages = array(
 		"/register/" => "register.php"
 );
 $_ROUTER = MainRouter::createRouter($pages);
-$_DB = DataBaseController::connectDB($dbSettings["host"], $dbSettings["user"], $dbSettings["pass"], $dbSettings["db_name"]);
+$_DB_SETTINGS = DataBase::init($dbSettings);
+$_DB = DataBaseController::connectDB(DataBase::getHost(), DataBase::getUser(), DataBase::getPass(), DataBase::getDbName());
 ?>

@@ -1,8 +1,11 @@
 <?php
-	if($error !== true){
+	if($error){
 		foreach ($error as $message) {
 			?><div class="alert alert-danger" role="alert"><?php echo $message;?></div><?php
 		}
+	}
+	if($success){
+		?><div class="alert alert-success" role="alert"><?php echo $success;?></div><?php
 	}
 	echo $form_header;
 	foreach ($fields as $field) {

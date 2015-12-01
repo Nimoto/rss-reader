@@ -1,10 +1,10 @@
 <?php
 class DataBaseController{
 	private static $obj;
-	private $mysqli;
+	private static $mysqli;
 
 	private function __construct($host, $login, $pass, $db_name){
-		$this->mysqli = new mysqli($host, $login, $pass, $db_name);
+		self::$mysqli = new mysqli($host, $login, $pass, $db_name);
 		if (mysqli_connect_errno()) {
 			echo "Подключение невозможно: ".mysqli_connect_error();
 		}
@@ -21,7 +21,7 @@ class DataBaseController{
 
 	}
 
-	public function insert($table_name, $arFields){
+	public static function insert($table_name, $arFields){
 		$sql = "INSERT INTO `".$table_name."`";
 		$fields = "";
 		$values = "";
@@ -32,8 +32,7 @@ class DataBaseController{
 		$fields = substr($fields, 0, -2);
 		$values = substr($values, 0, -2);
 		$sql .= "(".$fields.") VALUES (".$values.");";
-		echo $sql;
-		$this->mysqli->query($sql);
+		self::$mysqli->query($sql);
 	}
 
 	public function update(){
