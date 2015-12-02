@@ -7,10 +7,12 @@ include(MODEL_PATH."forms/MainFormClass.php");
 include(MODEL_PATH."forms/FieldClass.php");
 include(MODEL_PATH."manager/MainRouter.php");
 include(MODEL_PATH."manager/DataBase.php");
+include(MODEL_PATH."user/UserClass.php");
 include(CONTROLLER_PATH."manager/DataBaseController.php");
 include(CONTROLLER_PATH."manager/MailController.php");
 include(CONTROLLER_PATH."form/MainFormController.php");
 include(CONTROLLER_PATH."form/RegisterFormController.php");
+include(CONTROLLER_PATH."form/AuthFormController.php");
 include(CONTROLLER_PATH."form/ValidatorController.php");
 
 $_ADDRESS = $_SERVER["REQUEST_URI"];
@@ -21,5 +23,5 @@ $pages = array(
 );
 $_ROUTER = MainRouter::createRouter($pages);
 $_DB_SETTINGS = DataBase::init($dbSettings);
-$_DB = DataBaseController::connectDB(DataBase::getHost(), DataBase::getUser(), DataBase::getPass(), DataBase::getDbName());
+$_DB = DataBaseController::init(DataBase::getHost(), DataBase::getUser(), DataBase::getPass(), DataBase::getDbName());
 ?>
