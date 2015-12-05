@@ -3,7 +3,7 @@ class DataBaseController{
 	private static $connection;
 	private static $mysqli;
 	private static $user_fields = array(
-			"id" => "id",
+			"id" => "ID",
 			"login" => "login",
 			"email" => "email",
 			"pass" => "pass",
@@ -75,7 +75,6 @@ class DataBaseController{
 			$sql .= "`".$field."` = '".$value."' AND ";
 		}	
 		$sql = substr($sql, 0, -4);
-		echo $sql;
 		self::$mysqli->query($sql);		
 	}
 
@@ -110,7 +109,16 @@ class DataBaseController{
 			}
 		}	
 		$result = DataBaseController::select("user", $arFields);
-		return $result[0];
+		$fields = array();
+		if($result[0]){
+			foreach ($result[0] as $key => $value) {
+				if($key_uf = array_search($key, self::$user_fields)){
+					$fields[$key_uf] = $value;
+				}
+			
+			}
+		}
+		return $fields;
 	}
 }
 ?>

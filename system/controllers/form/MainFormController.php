@@ -1,19 +1,14 @@
 <?php
 class MainFormController{
 
-	private $form;
-	private $view;
-	private $_FORMDATA;
-	private $status;
-	private $redirect_uri;
-	private $validator;
+	protected $form;
+	protected $view;
+	protected $_FORMDATA;
+	protected $status;
+	protected $redirect_uri;
+	protected $validator;
 
 	function __construct($arParams, $form){
-		$this->init($arParams, $form);
-		$this->afterInit($arParams["template"]);
-	}
-
-	protected function init($arParams, $form){
 		$this->view = new View();
 		$this->validator = new MainValidatorController();
 		$this->form = $form;
@@ -23,15 +18,12 @@ class MainFormController{
 		}else $this->_FORMDATA = $_POST;
 		$_SESSION["form_".$this->form->getProperty("class")] = array();
 		$_SESSION["form_".$this->form->getProperty("class")] = $this->_FORMDATA;
-	}
-
-	protected function afterInit($template){
 		$handler_result = $this->handler();
 		$status = $handler_result["status"];
 		$result[$status] = $handler_result[$status];
 		$bones = $this->formParts();
 		$data = array_merge($result, $bones);
-		$this->include_tpl($template, $data);
+		$this->include_tpl($arParams["template"], $data);
 	}
 
 	function include_tpl($tpl, $data){
@@ -90,14 +82,14 @@ class MainFormController{
 		foreach ($arFields as $name => $arProp) {
 			$label = $arProp->getProperty("label");
 			$validator = $arProp->getProperty("validator");
-			$default_value = $arProp->getProperty("default_value");
+			$default_value = $_SESSION["form_".$this->form->getProperty("class")][$name];
 			if(!empty($validator)){
 				$label .= "*";
 			}
-			if(!empty($default_value)){
-				$default_value = $_SESSION["form_".$this->form->getProperty("class")][$name];
+			if(empty($default_value)){
+				$default_value = $arProp->getProperty("default_value");
 			}
-			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value='".$arProp->getProperty("default_value")."'/>";
+			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value='".$default_value."'/>";
 		}
 		return $return;
 	}

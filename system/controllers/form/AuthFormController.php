@@ -1,14 +1,9 @@
 <?php
 class AuthFormController extends MainFormController{
 
-	private $_FORMDATA;
-	private $redirect_url;
-
 	function __construct($arParams = null, $form, $redirect_url = null){
-		$this->init($arParams, $form);
-		$this->redirect_url = $redirect_url;
-		$this->_FORMDATA = parent::getProperty("_FORMDATA");
-		$this->afterInit($arParams["template"]);	
+		$this->redirect_url = $redirect_url;	
+		parent::__construct($arParams, $form);
 	}
 
 	function handler(){
