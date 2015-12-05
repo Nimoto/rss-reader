@@ -13,9 +13,9 @@ class MainFormController{
 		$this->validator = new MainValidatorController();
 		$this->form = $form;
 
-		if($this->form->getProperty("method") == "get"){
+		if($this->form->getProperty("method") == "get" && !empty($_GET["submit_".$this->form->getProperty("class")])){
 			$this->_FORMDATA = $_GET;
-		}else $this->_FORMDATA = $_POST;
+		}else if(!empty($_POST["submit_".$this->form->getProperty("class")])) $this->_FORMDATA = $_POST;
 		$_SESSION["form_".$this->form->getProperty("class")] = array();
 		$_SESSION["form_".$this->form->getProperty("class")] = $this->_FORMDATA;
 		$handler_result = $this->handler();

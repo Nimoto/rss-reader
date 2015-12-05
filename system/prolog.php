@@ -10,13 +10,16 @@ include(VIEW_PATH);
 include(MODEL_PATH."forms/MainFormClass.php");
 include(MODEL_PATH."forms/FieldClass.php");
 include(MODEL_PATH."user/UserClass.php");
+include(MODEL_PATH."rss/RssClass.php");
 include(CONTROLLER_PATH."manager/MainRouter.php");
 include(CONTROLLER_PATH."manager/MailController.php");
 include(CONTROLLER_PATH."form/MainFormController.php");
 include(CONTROLLER_PATH."form/RegisterFormController.php");
 include(CONTROLLER_PATH."form/AuthFormController.php");
 include(CONTROLLER_PATH."form/UpdateFormController.php");
+include(CONTROLLER_PATH."form/RssFormController.php");
 include(CONTROLLER_PATH."form/ValidatorController.php");
+include(CONTROLLER_PATH."rss/RssController.php");
 
 $_ADDRESS = $_SERVER["REQUEST_URI"];
 

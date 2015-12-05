@@ -39,6 +39,7 @@
 	            </li>
 	            <?php }else{?>
 	            <li><a href="/personal/">Личный кабинет</a></li>
+	            <li><a href="/rss/">Мои Rss-ленты</a></li>
 	            <?php }?>
 	          </ul>
 	        </div><!--/.nav-collapse -->

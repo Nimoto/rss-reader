@@ -9,6 +9,11 @@ class DataBaseController{
 			"pass" => "pass",
 			"full_name" => "full_name"
 		); 
+	private static $rss_fields = array(
+			"id" => "ID",
+			"user_id" => "user_id",
+			"rss_url" => "rss_url",
+		); 
 
 	private function __construct(){
 		self::$mysqli = new mysqli(HOST, USER, PASS, DB_NAME);
@@ -119,6 +124,43 @@ class DataBaseController{
 			}
 		}
 		return $fields;
+	}
+
+	public static function getRss($arParams){
+		$arFields = array();
+		$field_db = "";
+		foreach ($arParams as $field_name => $value) {
+			try {
+				if(array_key_exists($field_name, self::$rss_fields)){
+					$field_db = self::$rss_fields[$field_name];
+				}else{
+					throw new Exception('Некорректное значение поля для выборки.');					
+				}
+				$arFields[$field_db] = $value;	
+
+			} catch (Exception $e) {
+				var_dump($e->getMessage());
+			}
+		}	
+		$result = DataBaseController::select("rss", $arFields);
+		$fields = array();
+		foreach ($result as $key => $one_res) {
+			foreach ($one_res as $key => $value) {
+				if($key_uf = array_search($key, self::$rss_fields)){
+					$fields[$key_uf][] = $value;
+				}
+			
+			}
+		}
+		return $fields;
+	}
+
+	public static function insertRss($arParams){
+		$arFields = array(
+				"user_id" => $arParams["user_id"],
+				"rss_url" => $arParams["rss_url"]
+			);
+		DataBaseController::insert("rss", $arFields);
 	}
 }
 ?>
