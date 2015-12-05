@@ -9,10 +9,10 @@
 			);
 		
 		$authForm = new MainForm();
-		$authForm->addField(new Field("login", "Ваш логин", "text", "not_empty"));
-		$authForm->addField(new Field("pass", "Ваш пароль", "password", "not_empty"));
-		$authForm->addButton(new Field("send", "Отправить", "submit"));
-		$authControl = new AuthFormController($arParams, $authForm);
+		$authForm->addField(new Field("login", "Ваш логин", "text", null, "not_empty"));
+		$authForm->addField(new Field("pass", "Ваш пароль", "password", null, "not_empty"));
+		$authForm->addButton(new Field("send", "Отправить", "submit", null));
+		$authControl = new AuthFormController($arParams, $authForm, "/personal/");
 		?>
 	</div>
 	<div class="col-md-4"></div>

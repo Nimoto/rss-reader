@@ -15,12 +15,13 @@ class MainFormController{
 
 	protected function init($arParams, $form){
 		$this->view = new View();
-		$this->validator = new MainValidatorController;
+		$this->validator = new MainValidatorController();
 		$this->form = $form;
 
 		if($this->form->getProperty("method") == "get"){
 			$this->_FORMDATA = $_GET;
 		}else $this->_FORMDATA = $_POST;
+		$_SESSION["form_".$this->form->getProperty("class")] = array();
 		$_SESSION["form_".$this->form->getProperty("class")] = $this->_FORMDATA;
 	}
 
@@ -51,7 +52,9 @@ class MainFormController{
 						$valid = $fields[$name]->getProperty("validator");
 						if($valid){
 							$err = $this->validator->validator($value, $valid, $fields[$name]->getProperty("pass_field"), $this->_FORMDATA);
-							if($err !== true) $error_message[] = str_replace("{field}", $fields[$name]->getProperty("label"), $err);
+							if($err !== true){
+								$error_message[] = str_replace("{field}", $fields[$name]->getProperty("label"), $err);
+							}
 						}
 					}
 				}
@@ -87,10 +90,14 @@ class MainFormController{
 		foreach ($arFields as $name => $arProp) {
 			$label = $arProp->getProperty("label");
 			$validator = $arProp->getProperty("validator");
+			$default_value = $arProp->getProperty("default_value");
 			if(!empty($validator)){
 				$label .= "*";
 			}
-			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value='".$_SESSION["form_".$this->form->getProperty("class")][$name]."'/>";
+			if(!empty($default_value)){
+				$default_value = $_SESSION["form_".$this->form->getProperty("class")][$name];
+			}
+			$return[] = "<label>".$label."</label><input type='".$arProp->getProperty("type")."' name='".$name."' class='form-control ".$name."' value='".$arProp->getProperty("default_value")."'/>";
 		}
 		return $return;
 	}

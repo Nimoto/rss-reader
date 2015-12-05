@@ -21,12 +21,22 @@ class UserClass{
 		$fields = DataBaseController::getUser($arParams);
 		if(!empty($fields)){
 			$user = new UserClass($fields['login'], $fields['email'], $fields['full_name'], $fields['pass'], $fields['active'], $fields['id']);
+			$_SESSION["login"] = $login;
 		}else $user = false;
 		return $user;
 	}
 
 	public static function getByLogin($login){
 		$arParams = array("login" => $login);
+		$fields = DataBaseController::getUser($arParams);
+		if(!empty($fields)){
+			$user = new UserClass($fields['login'], $fields['email'], $fields['full_name'], $fields['pass'], $fields['active'], $fields['id']);
+		}else $user = false;
+		return $user;
+	}
+
+	public static function getByEmail($email){
+		$arParams = array("email" => $email);
 		$fields = DataBaseController::getUser($arParams);
 		if(!empty($fields)){
 			$user = new UserClass($fields['login'], $fields['email'], $fields['full_name'], $fields['pass'], $fields['active'], $fields['id']);
@@ -50,8 +60,17 @@ class UserClass{
 		return $user;
 	}
 
+	public static function updateUser($fields){
+		DataBaseController::updateUser($fields);
+	}
+
 	public function getProperty($property_name){
 		return $this->$property_name;
+	}
+
+	public function getGravatar(){
+		//return "http://www.gravatar.com/".md5(strtolower(trim( $this->getProperty("email"))));
+		return 'http://www.gravatar.com/avatar.php?gravatar_id=' . htmlspecialchars($this->getProperty("login")).'&amp;d=identicon&amp;s=350';
 	}
 }
 ?>

@@ -1,20 +1,27 @@
 <?php
 class DataBaseController{
-	private static $obj;
+	private static $connection;
 	private static $mysqli;
+	private static $user_fields = array(
+			"id" => "id",
+			"login" => "login",
+			"email" => "email",
+			"pass" => "pass",
+			"full_name" => "full_name"
+		); 
 
-	private function __construct($host, $login, $pass, $db_name){
-		self::$mysqli = new mysqli($host, $login, $pass, $db_name);
+	private function __construct(){
+		self::$mysqli = new mysqli(HOST, USER, PASS, DB_NAME);
 		if (mysqli_connect_errno()) {
 			echo "Подключение невозможно: ".mysqli_connect_error();
 		}
 	}
 
-	static function init($host=null, $login=null, $pass=null, $db_name=null){
-		if(!self::$obj){
-			self::$obj = new DataBaseController($host, $login, $pass, $db_name);			
+	static function init(){
+		if(!self::$connection){
+			self::$connection = new self();			
 		}
-		return self::$obj;
+		return self::$connection;
 	}
 
 	private static function select($table_name, $arFields){
@@ -57,24 +64,44 @@ class DataBaseController{
 		DataBaseController::insert("user", $arFields);
 	}
 
+	private static function update($table_name, $arFieldsSet, $arFieldsWhere){
+		$sql = "UPDATE `".$table_name."` SET ";
+		foreach ($arFieldsSet as $field => $value) {
+			$sql .= "`".$field."` = '".$value."', ";
+		}
+		$sql = substr($sql, 0, -2);
+		$sql .= " WHERE ";
+		foreach ($arFieldsWhere as $field => $value) {
+			$sql .= "`".$field."` = '".$value."' AND ";
+		}	
+		$sql = substr($sql, 0, -4);
+		echo $sql;
+		self::$mysqli->query($sql);		
+	}
+
+	public static function updateUser($fields){
+		$arFieldsSet = array(
+				"login" => $fields["login"],
+				"email" => $fields["email"],
+				"full_name" => $fields["full_name"],
+				"pass" => md5($fields["pass"]),
+				"active" => $fields["active"]
+			);
+		$arFieldsWhere = array(
+				"id" => $fields["id"],
+			);
+		DataBaseController::update("user", $arFieldsSet, $arFieldsWhere);
+	}
+
 	public static function getUser($arParams){
 		$arFields = array();
 		$field_db = "";
 		foreach ($arParams as $field_name => $value) {
 			try {
-				switch ($field_name) {
-					case 'id':
-						$field_db = "id";
-						break;
-					case 'login':
-						$field_db = "login";
-						break;
-					case 'pass':
-						$field_db = "pass";
-						break;
-					default:
-						throw new MyException('Некорректное значение поля для выборки.');
-						break;
+				if(array_key_exists($field_name, self::$user_fields)){
+					$field_db = self::$user_fields[$field_name];
+				}else{
+					throw new Exception('Некорректное значение поля для выборки.');					
 				}
 				$arFields[$field_db] = $value;	
 
@@ -84,10 +111,6 @@ class DataBaseController{
 		}	
 		$result = DataBaseController::select("user", $arFields);
 		return $result[0];
-	}
-
-	public function update(){
-
 	}
 }
 ?>
