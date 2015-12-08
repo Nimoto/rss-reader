@@ -2,7 +2,6 @@
 session_start();
 //error_reporting(E_ERROR);
 require "settings.php";
-
 include(CONTROLLER_PATH."manager/DataBaseController.php");
 $_DB = DataBaseController::init();
 
@@ -33,6 +32,10 @@ $_ROUTER = MainRouter::createRouter($pages);
 global $_USER;
 if($_SESSION["login"]){
 	$_USER = UserClass::getByLogin($_SESSION["login"]);
+	if($_USER->getProperty("active") == false){
+		unset($_SESSION["login"]);
+		unset($_USER);
+	}
 }
 
 ?>

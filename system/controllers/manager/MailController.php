@@ -7,8 +7,10 @@ class MailController{
 		mail(ADMIN_EMAIL, $subject, $message);
 	}
 
-	public static function RegisterMail($email){
-		$message = "Успешная регистрация. Потом будет контрольная строка для подтверждения ;)";
+	public static function RegisterMail($email, $code){
+		$message = "Успешная регистрация. 
+		Перейдите по ссылке для активации аккаунта: 
+		http://".$_SERVER["HTTP_HOST"]."/activate/?code=".$code."&email=".$email.";";
 		self::SendMail("Успешная регистрация на сайте RSS-Reader!", $message, $email);
 	}
 }

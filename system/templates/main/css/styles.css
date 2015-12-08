@@ -4,3 +4,8 @@
 	display: inline-block;
 	vertical-align: top;
 }*/
+
+.delete{
+	float:right;
+	cursor:pointer;
+}

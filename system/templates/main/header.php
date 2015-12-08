@@ -8,6 +8,7 @@
 		<link href="<?php echo WEB_TEMPLATE_PATH?>css/bootstrap.min.css" rel="stylesheet" media="screen">    
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
     	<script src="<?php echo WEB_TEMPLATE_PATH?>js/bootstrap.min.js"></script>
+    	<script src="<?php echo WEB_TEMPLATE_PATH?>js/custom.js"></script>
 		<!--[if lt IE 9]>
 			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 			<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
@@ -30,16 +31,9 @@
 	          <ul class="nav navbar-nav">
 	            <li class="active"><a href="/">Главная</a></li>
 	            <?php if(!$_USER){?>
-	            <li class="dropdown">
-	              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Войти<span class="caret"></span></a>
-	              <ul class="dropdown-menu">
-	                <li><a href="/auth/">Авторизация</a></li>
-	                <li><a href="/register/">Регистрация</a></li>
-	              </ul>
-	            </li>
+	            <li class=""><a href="/register/">Регистрация</a></li>
 	            <?php }else{?>
 	            <li><a href="/personal/">Личный кабинет</a></li>
-	            <li><a href="/rss/">Мои Rss-ленты</a></li>
 	            <?php }?>
 	          </ul>
 	        </div><!--/.nav-collapse -->

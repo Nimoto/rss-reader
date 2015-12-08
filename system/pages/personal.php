@@ -1,9 +1,14 @@
 <?php
 global $_USER;
+if($_GET["logout"] == "yes"){
+	unset($_SESSION["login"]);
+	unset($_USER);
+	echo '<meta http-equiv="refresh" content="0;URL=/">';
+}
 ?>
 <div class="row">
 	<div class="col-md-12">
-		<h1>Личный кабинет</h1>
+		<h1>Личный кабинет <small>(<a href="?logout=yes">выход</a>)</small></h1>
 	</div>
 </div>
 
@@ -41,9 +46,10 @@ global $_USER;
 					<?php
 
 					$rss = RssClass::getByUserId($_USER->getProperty("id"));
-					$rssController = new RssController($rss->getProperty("url"), "rss/RssUserChunk.php");
-					$rssController->printRssList();
-
+					if($rss){
+						$rssController = new RssController($rss, "rss/RssUserChunk.php");
+						$rssController->printRssList();
+					}
 					$arParams = array(
 							"template" => "form/MainFormChunk.php",
 						);

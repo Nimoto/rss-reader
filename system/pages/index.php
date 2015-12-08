@@ -1,13 +1,36 @@
-1. Backend<br />
-- Кнопка выхода из личного кабинета <br />
-- Удаление ленты из подписок<br />
-- Активация пользователей<br />
-- Отправка email<br />
-- Фильтр в списке новостей по ленте и дате<br />
-- Подсветка активного пункта меню<br />
-- Аватар пользователя<br />
-<br />
-2. Frontend<br />
-- Ajax-подгрузка новостей<br />
-- Удаление ленты из подписок<br />
-- Главная страница<br />
+<?php
+global $_USER;
+if($_GET["logout"] == "yes"){
+	unset($_SESSION["login"]);
+	unset($_USER);
+}
+if(!$_USER){?>
+<div class="row">
+	<div class="col-md-4"></div>
+	<div class="col-md-4">
+		<h1>Авторизация</h1>
+		<?php
+		$arParams = array(
+				"template" => "form/MainFormChunk.php",
+			);
+		
+		$authForm = new MainForm();
+		$authForm->addField(new Field("login", "Ваш логин", "text", null, "not_empty"));
+		$authForm->addField(new Field("pass", "Ваш пароль", "password", null, "not_empty"));
+		$authForm->addButton(new Field("send", "Отправить", "submit", null));
+		$authControl = new AuthFormController($arParams, $authForm, "/personal/");
+		?>
+	</div>
+	<div class="col-md-4"></div>
+</div>
+<?php } else {
+	$rss = RssClass::getByUserId($_USER->getProperty("id"));
+	if($rss){
+		$rssController = new RssController($rss, "rss/RssListChunk.php");
+		$rssController->printRss();
+	}else{?>
+		<div class="rss-wrapper alert  alert-info"  role="alert">
+			Вы не подписаны ни на одну ленту.
+		</div>
+	<?}?>
+<?php }?>

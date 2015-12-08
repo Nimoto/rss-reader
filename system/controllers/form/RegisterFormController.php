@@ -22,11 +22,13 @@ class RegisterFormController extends MainFormController{
 						"login" => $this->_FORMDATA["login"],
 						"email" => $this->_FORMDATA["email"],
 						"full_name" => $this->_FORMDATA["full_name"],
-						"pass" => $this->_FORMDATA["pass"]
+						"pass" => $this->_FORMDATA["pass"],
+						"active" => false,
+						"code" => md5(date("Y-m-d H:i:s"))
 					);
 				UserClass::createUser($arFields);
 				$messages["success"] = "Спасибо за регистрацию. На Ваш email выслано письмо для активации аккаунта.";		
-				MailController::RegisterMail($this->_FORMDATA["email"]);	
+				MailController::RegisterMail($this->_FORMDATA["email"], $arFields["code"]);	
 			}
 		}
 		return $messages;

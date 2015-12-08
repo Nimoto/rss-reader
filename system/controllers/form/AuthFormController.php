@@ -10,9 +10,13 @@ class AuthFormController extends MainFormController{
 		$messages = parent::handler();
 		if($messages["status"] == "success" && !empty($this->_FORMDATA)){
 			$user = UserClass::auth($this->_FORMDATA["login"], md5($this->_FORMDATA["pass"]));
-			if(!$user && $messages["status"] == "success"){
+			if(!$user){
 				$messages["status"] = "error";
 				$messages["error"][] = "Неправильный логин или пароль";
+				unset($messages["success"]);
+			}else if($user->getProperty("active") == false){
+				$messages["status"] = "error";
+				$messages["error"][] = "Аккаунт неактивен";
 				unset($messages["success"]);
 			}else{
 				$messages["success"] = "Вы авторизованы.";

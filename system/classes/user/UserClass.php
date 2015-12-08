@@ -6,14 +6,16 @@ class UserClass{
 	private $id;
 	private $pass;
 	private $active;
+	private $code;
 
-	private function __construct($login, $email, $full_name, $pass=null, $active=null, $id = null){
+	private function __construct($login, $email, $full_name, $pass=null, $active=null, $id = null, $code=null){
 		$this->login = $login;
 		$this->email = $email;
 		$this->full_name = $full_name;
 		$this->pass = $pass;
 		$this->id = $id;
 		$this->active = $active;
+		$this->code = $code;
 	}
 
 	public static function auth($login, $pass){
@@ -54,10 +56,14 @@ class UserClass{
 	}
 
 	public static function createUser($fields){
-		$fields['active'] = false;
-		$user = new UserClass($fields['login'], $fields['email'], $fields['full_name'], $fields['pass'], $fields['active']);
+		$user = new UserClass($fields['login'], $fields['email'], $fields['full_name'], $fields['pass'], $fields['active'], null, $fields["code"]);
 		DataBaseController::insertUser($user);
 		return $user;
+	}
+
+	public static function activate($email, $code){
+		$activate = DataBaseController::activateUser($email, $code);
+		return $activate;
 	}
 
 	public static function updateUser($fields){
