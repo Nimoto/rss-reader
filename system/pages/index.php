@@ -24,13 +24,4 @@ if(!$_USER){?>
 	<div class="col-md-4"></div>
 </div>
 <?php } else {
-	$rss = RssClass::getByUserId($_USER->getProperty("id"));
-	if($rss){
-		$rssController = new RssController($rss, "rss/RssListChunk.php");
-		$rssController->printRss();
-	}else{?>
-		<div class="rss-wrapper alert  alert-info"  role="alert">
-			Вы не подписаны ни на одну ленту.
-		</div>
-	<?}?>
-<?php }?>
+}?>

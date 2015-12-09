@@ -1,8 +1,8 @@
 <?php
 class DataBaseController{
 	private static $connection;
-	private static $mysqli;
-	private static $user_fields = array(
+	private $mysqli;
+	private $user_fields = array(
 			"id" => "ID",
 			"login" => "login",
 			"email" => "email",
@@ -11,12 +11,12 @@ class DataBaseController{
 			"active" => "active",
 			"code" => "code"
 		); 
-	private static $rss_fields = array(
+	private $rss_fields = array(
 			"id" => "ID",
 			"user_id" => "user_id",
 			"rss_url" => "rss_url",
 		); 
-	private static $rss_items_fields = array(
+	private $rss_items_fields = array(
 			"id" => "ID",
 			"rss_id" => "ID_rss",
 			"description" => "description",
@@ -25,9 +25,15 @@ class DataBaseController{
 			"user_id" => "user_id",
 			"date" => "date",
 		); 
+ 
+    private function __clone() {
+    }
+
+    private function __wakeup() {
+    }     
 
 	private function __construct(){
-		self::$mysqli = new mysqli(HOST, USER, PASS, DB_NAME);
+		$this->mysqli = new mysqli(HOST, USER, PASS, DB_NAME);
 		if (mysqli_connect_errno()) {
 			echo "Подключение невозможно: ".mysqli_connect_error();
 		}
@@ -40,7 +46,7 @@ class DataBaseController{
 		return self::$connection;
 	}
 
-	private static function select($table_name, $arFields, $offset = NULL, $limit = NULL){
+	private function select($table_name, $arFields, $offset = NULL, $limit = NULL){
 		$sql = "SELECT * FROM `".$table_name."` WHERE ";
 		$where = "";
 		foreach ($arFields as $field => $value) {
@@ -54,14 +60,14 @@ class DataBaseController{
 			$where .= " LIMIT ".$offset.$limit.";";
 		}
 		$sql .= $where;
-		$result = self::$mysqli->query($sql);
+		$result = $this->mysqli->query($sql);
 		while ($row = $result->fetch_assoc()) {
 		    $return[] = $row;
 		}
 		return $return;
 	}
 
-	private static function insert($table_name, $arFields){
+	private function insert($table_name, $arFields){
 		$sql = "INSERT INTO `".$table_name."`";
 		$fields = "";
 		$values = "";
@@ -72,10 +78,35 @@ class DataBaseController{
 		$fields = substr($fields, 0, -2);
 		$values = substr($values, 0, -2);
 		$sql .= "(".$fields.") VALUES (".$values.");";
-		self::$mysqli->query($sql);
+		$this->mysqli->query($sql);
 	}
 
-	public static function insertUser($user){
+	private function update($table_name, $arFieldsSet, $arFieldsWhere){
+		$sql = "UPDATE `".$table_name."` SET ";
+		foreach ($arFieldsSet as $field => $value) {
+			$sql .= "`".$field."` = '".$value."', ";
+		}
+		$sql = substr($sql, 0, -2);
+		$sql .= " WHERE ";
+		foreach ($arFieldsWhere as $field => $value) {
+			$sql .= "`".$field."` = '".$value."' AND ";
+		}	
+		$sql = substr($sql, 0, -4);
+		$this->mysqli->query($sql);		
+	}
+
+	private function delete($table_name, $arFields){
+		$sql = "DELETE FROM `".$table_name."` WHERE ";
+		$where = "";
+		foreach ($arFields as $field => $value) {
+			$where .= "`".$field."` = '".$value."' AND ";
+		}		
+		$where = substr($where, 0, -5);
+		$sql .= $where;
+		$this->mysqli->query($sql);	
+	}
+
+	public function insertUser($user){
 		$arFields = array(
 				"login" => $user->getProperty("login"),
 				"email" => $user->getProperty("email"),
@@ -87,21 +118,7 @@ class DataBaseController{
 		DataBaseController::insert("user", $arFields);
 	}
 
-	private static function update($table_name, $arFieldsSet, $arFieldsWhere){
-		$sql = "UPDATE `".$table_name."` SET ";
-		foreach ($arFieldsSet as $field => $value) {
-			$sql .= "`".$field."` = '".$value."', ";
-		}
-		$sql = substr($sql, 0, -2);
-		$sql .= " WHERE ";
-		foreach ($arFieldsWhere as $field => $value) {
-			$sql .= "`".$field."` = '".$value."' AND ";
-		}	
-		$sql = substr($sql, 0, -4);
-		self::$mysqli->query($sql);		
-	}
-
-	public static function updateUser($fields){
+	public function updateUser($fields){
 		$arFieldsSet = array(
 				"login" => $fields["login"],
 				"email" => $fields["email"],
@@ -115,13 +132,13 @@ class DataBaseController{
 		DataBaseController::update("user", $arFieldsSet, $arFieldsWhere);
 	}
 
-	public static function getUser($arParams){
+	public function getUser($arParams){
 		$arFields = array();
 		$field_db = "";
 		foreach ($arParams as $field_name => $value) {
 			try {
-				if(array_key_exists($field_name, self::$user_fields)){
-					$field_db = self::$user_fields[$field_name];
+				if(array_key_exists($field_name, $this->user_fields)){
+					$field_db = $this->user_fields[$field_name];
 				}else{
 					throw new Exception('Некорректное значение поля для выборки.');					
 				}
@@ -135,7 +152,7 @@ class DataBaseController{
 		$fields = array();
 		if($result[0]){
 			foreach ($result[0] as $key => $value) {
-				if($key_uf = array_search($key, self::$user_fields)){
+				if($key_uf = array_search($key, $this->user_fields)){
 					$fields[$key_uf] = $value;
 				}
 			
@@ -144,13 +161,13 @@ class DataBaseController{
 		return $fields;
 	}
 
-	public static function getRss($arParams){
+	public function getRss($arParams){
 		$arFields = array();
 		$field_db = "";
 		foreach ($arParams as $field_name => $value) {
 			try {
-				if(array_key_exists($field_name, self::$rss_fields)){
-					$field_db = self::$rss_fields[$field_name];
+				if(array_key_exists($field_name, $this->rss_fields)){
+					$field_db = $this->rss_fields[$field_name];
 				}else{
 					throw new Exception('Некорректное значение поля для выборки.');					
 				}
@@ -164,7 +181,7 @@ class DataBaseController{
 		$fields = array();
 		foreach ($result as $key => $one_res) {
 			foreach ($one_res as $key => $value) {
-				if($key_uf = array_search($key, self::$rss_fields)){
+				if($key_uf = array_search($key, $this->rss_fields)){
 					$fields[$key_uf][] = $value;
 				}
 			
@@ -173,7 +190,7 @@ class DataBaseController{
 		return $fields;
 	}
 
-	public static function insertRss($arParams){
+	public function insertRss($arParams){
 		$arFields = array(
 				"user_id" => $arParams["user_id"],
 				"rss_url" => $arParams["rss_url"]
@@ -181,7 +198,7 @@ class DataBaseController{
 		DataBaseController::insert("rss", $arFields);
 	}
 
-	public static function activateUser($email, $code){
+	public function activateUser($email, $code){
 		$arParams = array("code" => $code, "email" => $email);
 		$fields = DataBaseController::getUser($arParams);
 		if(!empty($fields)){
@@ -190,18 +207,7 @@ class DataBaseController{
 		}else return false;
 	}
 
-	private static function delete($table_name, $arFields){
-		$sql = "DELETE FROM `".$table_name."` WHERE ";
-		$where = "";
-		foreach ($arFields as $field => $value) {
-			$where .= "`".$field."` = '".$value."' AND ";
-		}		
-		$where = substr($where, 0, -5);
-		$sql .= $where;
-		self::$mysqli->query($sql);	
-	}
-
-	public static function deleteRss($arParams){
+	public function deleteRss($arParams){
 		$arFields = array(
 				"user_id" => $arParams["user_id"],
 				"rss_url" => $arParams["url"]
@@ -209,14 +215,14 @@ class DataBaseController{
 		self::delete("rss", $arFields);
 	}
 
-	public static function deleteRssItems($rss){
+	public function deleteRssItems($rss){
 		$arFields = array(
 				"user_id" => $rss->getProperty("user_id"),
 			);
 		self::delete("rss_items", $arFields);
 	}
 
-	public static function insertRssItem($rss, $arFields){
+	public function insertRssItem($rss, $arFields){
 		$arFields = array(
 				"ID_rss" => $rss->getProperty("id"),
 				"description" => $arFields["description"],
@@ -228,17 +234,17 @@ class DataBaseController{
 		DataBaseController::insert("rss_items", $arFields);
 	}
 
-	public static function updateRss($set, $where){
+	public function updateRss($set, $where){
 		DataBaseController::update("rss_items", $set, $where);		
 	}
 
-	public static function getRssItems($arParams, $offset, $limit){
+	public function getRssItems($arParams, $offset, $limit){
 		$arFields = array();
 		$field_db = "";
 		foreach ($arParams as $field_name => $value) {
 			try {
-				if(array_key_exists($field_name, self::$rss_items_fields)){
-					$field_db = self::$rss_fields[$field_name];
+				if(array_key_exists($field_name, $this->rss_items_fields)){
+					$field_db = $this->rss_fields[$field_name];
 				}else{
 					throw new Exception('Некорректное значение поля для выборки.');					
 				}
@@ -253,7 +259,7 @@ class DataBaseController{
 		foreach ($result as $key => $one_res) {
 			$fields_tmp = array();
 			foreach ($one_res as $key => $value) {
-				if($key_uf = array_search($key, self::$rss_items_fields)){
+				if($key_uf = array_search($key, $this->rss_items_fields)){
 					$fields_tmp[$key_uf] = htmlspecialchars_decode($value);
 				}			
 			}
