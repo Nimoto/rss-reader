@@ -15,6 +15,7 @@ class DataBaseController{
 			"id" => "ID",
 			"user_id" => "user_id",
 			"rss_url" => "rss_url",
+			"title" => "title"
 		); 
 	private $rss_items_fields = array(
 			"id" => "ID",
@@ -46,8 +47,14 @@ class DataBaseController{
 		return self::$connection;
 	}
 
-	private function select($table_name, $arFields, $offset = NULL, $limit = NULL){
-		$sql = "SELECT * FROM `".$table_name."` WHERE ";
+	private function select($table_name, $arFields, $offset = NULL, $limit = NULL, $only_count = false){
+		$sql = "SELECT ";
+		if($only_count){
+			$sql .= "COUNT(*)";
+		}else{
+			$sql .= "*";
+		}
+		$sql .= " FROM `".$table_name."` WHERE ";
 		$where = "";
 		foreach ($arFields as $field => $value) {
 			$where .= "`".$field."` = '".$value."' AND ";
@@ -61,8 +68,10 @@ class DataBaseController{
 		}
 		$sql .= $where;
 		$result = $this->mysqli->query($sql);
-		while ($row = $result->fetch_assoc()) {
-		    $return[] = $row;
+		if($result){
+			while ($row = $result->fetch_assoc()) {
+			    $return[] = $row;
+			}
 		}
 		return $return;
 	}
@@ -115,7 +124,7 @@ class DataBaseController{
 				"active" => $user->getProperty("active"),
 				"code" => $user->getProperty("code")
 			);
-		DataBaseController::insert("user", $arFields);
+		$this->insert("user", $arFields);
 	}
 
 	public function updateUser($fields){
@@ -129,7 +138,7 @@ class DataBaseController{
 		$arFieldsWhere = array(
 				"id" => $fields["id"],
 			);
-		DataBaseController::update("user", $arFieldsSet, $arFieldsWhere);
+		$this->update("user", $arFieldsSet, $arFieldsWhere);
 	}
 
 	public function getUser($arParams){
@@ -148,7 +157,7 @@ class DataBaseController{
 				var_dump($e->getMessage());
 			}
 		}	
-		$result = DataBaseController::select("user", $arFields);
+		$result = $this->select("user", $arFields);
 		$fields = array();
 		if($result[0]){
 			foreach ($result[0] as $key => $value) {
@@ -169,7 +178,7 @@ class DataBaseController{
 				if(array_key_exists($field_name, $this->rss_fields)){
 					$field_db = $this->rss_fields[$field_name];
 				}else{
-					throw new Exception('Некорректное значение поля для выборки.');					
+					throw new Exception('Некорректное значение поля для выборки.'.$field_name);					
 				}
 				$arFields[$field_db] = $value;	
 
@@ -177,16 +186,18 @@ class DataBaseController{
 				var_dump($e->getMessage());
 			}
 		}	
-		$result = DataBaseController::select("rss", $arFields);
+		$result = $this->select("rss", $arFields);
 		$fields = array();
 		foreach ($result as $key => $one_res) {
+			$fields_tmp = array();
 			foreach ($one_res as $key => $value) {
 				if($key_uf = array_search($key, $this->rss_fields)){
-					$fields[$key_uf][] = $value;
-				}
-			
+					$fields_tmp[$key_uf] = htmlspecialchars_decode($value);
+				}			
 			}
+			$fields[] = $fields_tmp;
 		}
+		if(empty($fields)) $fields = false;
 		return $fields;
 	}
 
@@ -195,14 +206,14 @@ class DataBaseController{
 				"user_id" => $arParams["user_id"],
 				"rss_url" => $arParams["rss_url"]
 			);
-		DataBaseController::insert("rss", $arFields);
+		$this->insert("rss", $arFields);
 	}
 
 	public function activateUser($email, $code){
 		$arParams = array("code" => $code, "email" => $email);
-		$fields = DataBaseController::getUser($arParams);
+		$fields = $this->getUser($arParams);
 		if(!empty($fields)){
-			DataBaseController::update("user", array("code" => "", "active" => true), array("id" => $fields["id"]));
+			$this->update("user", array("code" => "", "active" => true), array("id" => $fields["id"]));
 			return true;
 		}else return false;
 	}
@@ -212,14 +223,15 @@ class DataBaseController{
 				"user_id" => $arParams["user_id"],
 				"rss_url" => $arParams["url"]
 			);
-		self::delete("rss", $arFields);
+		$this->delete("rss", $arFields);
 	}
 
 	public function deleteRssItems($rss){
 		$arFields = array(
 				"user_id" => $rss->getProperty("user_id"),
+				"ID_rss" => $rss->getProperty("id"),
 			);
-		self::delete("rss_items", $arFields);
+		$this->delete("rss_items", $arFields);
 	}
 
 	public function insertRssItem($rss, $arFields){
@@ -231,14 +243,14 @@ class DataBaseController{
 				"user_id" => $rss->getProperty("user_id"),
 				"date" => $arFields["date"],
 			);
-		DataBaseController::insert("rss_items", $arFields);
+		$this->insert("rss_items", $arFields);
 	}
 
 	public function updateRss($set, $where){
-		DataBaseController::update("rss_items", $set, $where);		
+		$this->update("rss_items", $set, $where);		
 	}
 
-	public function getRssItems($arParams, $offset, $limit){
+	public function getRssItems($arParams, $offset, $limit, $only_count = false){
 		$arFields = array();
 		$field_db = "";
 		foreach ($arParams as $field_name => $value) {
@@ -254,19 +266,23 @@ class DataBaseController{
 				var_dump($e->getMessage());
 			}
 		}	
-		$result = DataBaseController::select("rss_items", $arFields, $offset, $limit);
-		$fields = array();
-		foreach ($result as $key => $one_res) {
-			$fields_tmp = array();
-			foreach ($one_res as $key => $value) {
-				if($key_uf = array_search($key, $this->rss_items_fields)){
-					$fields_tmp[$key_uf] = htmlspecialchars_decode($value);
-				}			
+		$result = $this->select("rss_items", $arFields, $offset, $limit, $only_count);
+		if($only_count){
+			return $result["COUNT(*)"];
+		}else{
+			$fields = array();
+			foreach ($result as $key => $one_res) {
+				$fields_tmp = array();
+				foreach ($one_res as $key => $value) {
+					if($key_uf = array_search($key, $this->rss_items_fields)){
+						$fields_tmp[$key_uf] = htmlspecialchars_decode($value);
+					}			
+				}
+				$fields["items"][] = $fields_tmp;
 			}
-			$fields["items"][] = $fields_tmp;
+			if(empty($fields)) $fields = false;
+			return $fields;
 		}
-		if(empty($fields)) $fields = false;
-		return $fields;
-	} 
+	}
 }
 ?>

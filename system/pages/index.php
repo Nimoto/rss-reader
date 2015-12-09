@@ -24,4 +24,10 @@ if(!$_USER){?>
 	<div class="col-md-4"></div>
 </div>
 <?php } else {
+	if($_GET["refresh"] == 1){
+		$rss_controller = new RssController($_USER->getProperty("id"));
+		$rss_controller->updateRss();
+	}
+	$rss_item_controller = new RssItemsController($_USER->getProperty("id"),"rss/RssListChunk.php");
+	$rss_item_controller->printRssItems();
 }?>

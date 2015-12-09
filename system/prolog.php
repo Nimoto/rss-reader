@@ -10,6 +10,7 @@ include(MODEL_PATH."forms/MainFormClass.php");
 include(MODEL_PATH."forms/FieldClass.php");
 include(MODEL_PATH."user/UserClass.php");
 include(MODEL_PATH."rss/RssClass.php");
+include(MODEL_PATH."paginator/PaginatorClass.php");
 include(CONTROLLER_PATH."manager/MainRouter.php");
 include(CONTROLLER_PATH."manager/MailController.php");
 include(CONTROLLER_PATH."form/MainFormController.php");
@@ -19,6 +20,8 @@ include(CONTROLLER_PATH."form/UpdateFormController.php");
 include(CONTROLLER_PATH."form/RssFormController.php");
 include(CONTROLLER_PATH."form/ValidatorController.php");
 include(CONTROLLER_PATH."rss/RssController.php");
+include(CONTROLLER_PATH."rss/RssItemsController.php");
+include(CONTROLLER_PATH."paginator/PaginatorController.php");
 
 $_ADDRESS = $_SERVER["REQUEST_URI"];
 

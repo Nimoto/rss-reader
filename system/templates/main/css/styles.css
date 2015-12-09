@@ -9,3 +9,14 @@
 	float:right;
 	cursor:pointer;
 }
+
+.rss-wrapper img{
+	float: left;
+    margin-right: 40px;
+    margin-bottom: 20px;
+    max-width: 150px;
+}
+
+.rss-wrapper{
+	overflow: hidden;
+}

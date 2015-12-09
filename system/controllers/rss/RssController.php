@@ -3,19 +3,13 @@ class RssController{
 	private $url;
 	private $view;
 	private $template;
-	private $page;
-	private $rss;
+	private $rss_list;
 
-	function __construct($rss, $template){
-		$this->rss = $rss;
-		$this->url = $rss->getProperty("url");
+	function __construct($user_id, $template = NULL){
 		$this->template = $template;
+		$this->user_id = $user_id;
 		$this->view = new View();
-		if($_GET["nav"])
-			$this->page = $_GET["nav"] - 1;
-		else
-			$this->page = 0;
-
+		$this->rss_list = $this->getAllRssByUserId($this->user_id);
 	}
 
 	private function parseXml($url){
@@ -37,33 +31,59 @@ class RssController{
 		return $result;
 	}
 
-	function updateRss(){
-		foreach ($this->url as $one_url) {
-			$lenta = $this->parseXml($one_url);
-			$this->rss->setTitle($lenta["title"]);
-			$this->rss->clearItems();
-			foreach ($lenta["items"] as $date_nf => $item) {
-				$timestamp = strtotime($date_nf);
-				$date = date("Y-m-d H:i:s", $timestamp);
-				$arFields = array(
-						"title" => htmlspecialchars($item->title.""),
-						"link" => htmlentities($item->link.""),
-						"date" => $date_nf."",
-						"description" => htmlspecialchars($item->description.""),
-					);
-				$this->rss->insertItem($arFields);
-			}		
-		}		
+	private function updateOneRss($rss){
+		$one_url = $rss->getProperty("url");
+		$lenta = $this->parseXml($one_url);
+		$rss->setTitle($lenta["title"]);
+		$rss->clearItems();
+		foreach ($lenta["items"] as $date_nf => $item) {
+			$timestamp = strtotime($date_nf);
+			$date = date("Y-m-d H:i:s", $timestamp);
+			$arFields = array(
+					"title" => htmlspecialchars($item->title.""),
+					"link" => htmlentities($item->link.""),
+					"date" => $date_nf."",
+					"description" => htmlspecialchars($item->description.""),
+				);
+			$rss->insertItem($arFields);
+		}
 	}
 
-	function printRss(){
-		$data = $this->rss->getAllRssItems($this->page*5, 5);
-		$this->include_tpl($this->template, $data);
+	public function updateRss(){
+		if(!empty($this->rss_list)){
+			foreach ($this->rss_list as $rss) {
+				$this->updateOneRss($rss);
+			}
+		}
 	}
+
+
+	public function getAllRssByUserId($user_id){
+		$arParams = array("user_id" => $user_id);
+		$fields = DataBaseController::init()->getRss($arParams);
+		$rss_list = array();
+		if($fields){
+			foreach ($fields as $rss_fields) {
+				$rss_list[] = new RssClass($rss_fields['rss_url'], $user_id, $rss_fields['id'], $rss_fields['title']);
+			}
+		}
+		return $rss_list;
+	}
+
+
 
 	function printRssList(){
-		$data["urls"] = $this->url;
-		$this->include_tpl($this->template, $data);		
+		if(!empty($this->rss_list)){
+			foreach ($this->rss_list as $rss) {
+				if($rss->getProperty("title")){
+					$text = $rss->getProperty("title");
+				}else{
+					$text = $rss->getProperty("url");
+				}
+				$data["urls"][] = $rss->getProperty("url");
+			}
+			$this->include_tpl($this->template, $data);		
+		}
 	}
 
 

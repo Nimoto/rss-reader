@@ -8,7 +8,7 @@ class RssFormController extends MainFormController{
 						"user_id" => $this->_FORMDATA["id"],
 						"rss_url" => $this->_FORMDATA["rss_url"]
 					);
-				RssClass::addRss($arFields);
+				DataBaseController::init()->insertRss($arFields);
 				$messages["success"] = "Лента добавлена.";			
 		}
 		return $messages;

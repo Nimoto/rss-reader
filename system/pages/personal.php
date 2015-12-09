@@ -43,6 +43,20 @@ if($_GET["logout"] == "yes"){
 			</div>
 			<div id="panel2" class="tab-pane fade">
 				<div style="margin-top:10px">
+					<?php
+						$rss_controller = new RssController($_USER->getProperty("id"), "rss/RssUserChunk.php");
+						if($rss_controller){
+							$rss_controller->PrintRssList();
+						}
+						$arParams = array(
+								"template" => "form/MainFormChunk.php",
+							);
+						$authForm = new MainForm("rss_add");
+						$authForm->addField(new Field("rss_url", "URL ленты", "text", null, "not_empty"));
+						$authForm->addField(new Field("id", "", "hidden", $_USER->getProperty("id")));
+						$authForm->addButton(new Field("add", "Добавить", "submit"));
+						$authControl = new RssFormController($arParams, $authForm);
+					?>
 				</div>
 			</div>
 		</div>
