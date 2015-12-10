@@ -30,4 +30,6 @@ if(!$_USER){?>
 	}
 	$rss_item_controller = new RssItemsController($_USER->getProperty("id"),"rss/RssListChunk.php");
 	$rss_item_controller->printRssItems();
+	$paginator_controller = new PaginatorController($rss_item_controller->getProperty("paginator"), "paginator/PaginatorChunk.php");
+	$paginator_controller->printPaginator();
 }?>

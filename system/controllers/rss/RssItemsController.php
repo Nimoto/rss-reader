@@ -14,10 +14,10 @@ class RssItemsController{
 		$this->limit = $limit;
 		$this->template = $tpl;
 		$this->view = new View();
-		$paginator = new PaginatorClass();
-		$this->page = $paginator->getProperty("page_num");
+		$this->paginator = new PaginatorClass();
+		$this->page = $this->paginator->getProperty("page_num");
 		$arParams = array("user_id" => $this->user_id);
-		$paginator->setProperty("count", DataBaseController::init()->getRssItems($arParams, NULL, NULL, true));
+		$this->paginator->setProperty("page_count", round(DataBaseController::init()->getRssItems($arParams, NULL, NULL, true)/$limit));
 	}
 
 	private function getAllRssItems(){
@@ -50,7 +50,6 @@ class RssItemsController{
 					$items[$date]["main_link"] = $this->rss_list[$item["rss_id"]]->getProperty("url");			
 				}
 			}
-			print_r($this->rss_list);
 			krsort($items);
 			$result["items"] = $items;
 		}else{
@@ -66,6 +65,10 @@ class RssItemsController{
 
 	private function include_tpl($tpl, $data){
 		$this->view->generate($tpl, $data);		
+	}
+
+	public function getProperty($property_name){
+		return $this->$property_name;
 	}
 
 } 

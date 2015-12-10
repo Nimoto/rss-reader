@@ -268,7 +268,7 @@ class DataBaseController{
 		}	
 		$result = $this->select("rss_items", $arFields, $offset, $limit, $only_count);
 		if($only_count){
-			return $result["COUNT(*)"];
+			return $result[0]["COUNT(*)"];
 		}else{
 			$fields = array();
 			foreach ($result as $key => $one_res) {
