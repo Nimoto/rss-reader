@@ -56,3 +56,16 @@ p.lead > *{
 .pagination{
 	padding-left:15px!important;
 }
+
+.is-read{
+	float:right;
+}
+
+.lead-wrap{
+	float: left;
+}
+
+.clear{
+	float: none;
+	clear: both;
+}

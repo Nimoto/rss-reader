@@ -73,15 +73,21 @@ if(!$_USER){?>
 	<div class="row filter">
 		<div class="col-md-12">
 			<div class="alert alert-warning" role="alert">
-				<form id="filter" class="col-md-6" action="" method="post">
-					<div class="form-line col-md-3">
+				<form id="filter" class="col-md-12" action="" method="post">
+					<div class="form-line col-md-2">
 						<span>Сортировать:</span> 
 					</div>
-					<div class="form-line col-md-4">
+					<div class="form-line col-md-2">
 						<button type="submit" name="date" value="<?php echo $date_sort?>" onclick="SortDate('<?php echo $date_sort?>');return false;" class="date-f <?php echo $date_button?>"><span>Дате <i class="<?php echo $date_glif?>"></i></span></button>
 					</div>
-					<div class="form-line col-md-4">
+					<div class="form-line col-md-2">
 						<button type="submit" name="read" value="<?php echo $read_sort?>" onclick="SortRead('<?php echo $date_sort?>');return false;" class="read-f <?php echo $read_button?>">Прочтению <i class="<?php echo $read_glif?>"></i></button>
+					</div>
+					<div class="form-line col-md-3">
+						
+					</div>
+					<div class="form-line col-md-3">
+						<button type="submit" name="readen-all" value="<?php echo $_USER->getProperty("id")?>" onclick="ReadAllRss('<?php echo $_USER->getProperty("id")?>');return false;" class="btn btn-primary">Отметить все как прочитанное</button>
 					</div>
 				</form>
 				<div col="col-md-6"></div>

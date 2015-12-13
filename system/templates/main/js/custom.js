@@ -40,11 +40,11 @@ function SortRead(direct){
 	$(".read-f").addClass("btn-warning");
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {read: direct}, function(){
 		if(direct == "asc"){
-			$(".read-f").attr("onclick", "SortDate('desc');return false;");
+			$(".read-f").attr("onclick", "SortRead('desc');return false;");
 			$(".read-f i").removeClass("glyphicon-sort-by-attributes-alt");
 			$(".read-f i").addClass("glyphicon-sort-by-attributes");
 		}else{
-			$(".read-f").attr("onclick", "SortDate('asc');return false;");
+			$(".read-f").attr("onclick", "SortRead('asc');return false;");
 			$(".read-f i").removeClass("glyphicon-sort-by-attributes");
 			$(".read-f i").addClass("glyphicon-sort-by-attributes-alt");
 		}
@@ -75,4 +75,30 @@ function Paginator(el){
 			history.pushState(null, null, $(el).attr("href"));
 		}
 	});
+}
+
+function IsRead(el, id){
+	$.ajax({
+	  type: "POST",
+	  url: "/include/ajax/isRead.php",
+	  data: { id: id }
+	}).done(function( msg ) {
+		$(el).parent().html("<i class=\"glyphicon glyphicon-ok\"></i>");
+		$(".rss-wrap-"+id).removeClass("alert-info");
+		$(".rss-wrap-"+id).addClass("alert-success");
+	});
+	return false;
+}
+
+function ReadAllRss(user_id){
+	$.ajax({
+	  type: "POST",
+	  url: "/include/ajax/isRead.php",
+	  data: { user_id: user_id }
+	}).done(function( msg ) {
+		$(".is-read").html("<i class=\"glyphicon glyphicon-ok\"></i>");
+		$(".rss-wrapper").removeClass("alert-info");
+		$(".rss-wrapper").addClass("alert-success");
+	});
+	return false;
 }

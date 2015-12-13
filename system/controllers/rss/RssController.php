@@ -35,18 +35,24 @@ class RssController{
 		$one_url = $rss->getProperty("url");
 		$lenta = $this->parseXml($one_url);
 		$rss->setTitle($lenta["title"]);
-		$rss->clearItems();
+		$last_update = $rss->getProperty("date");
+
+		$rss->setRefreshDate(date("Y-m-d H:i:s"));
+		//$rss->clearItems();
+
 		foreach ($lenta["items"] as $date_nf => $item) {
 			$timestamp = strtotime($date_nf);
 			$date = date("Y-m-d H:i:s", $timestamp);
-			$arFields = array(
-					"title" => htmlspecialchars($item->title.""),
-					"link" => htmlentities($item->link.""),
-					"date" => $date."",
-					"description" => htmlspecialchars($item->description.""),
-					"audio" => $item->enclosure["url"].""
-				);
-			$rss->insertItem($arFields);
+			if($date > $last_update){
+				$arFields = array(
+						"title" => htmlspecialchars($item->title.""),
+						"link" => htmlentities($item->link.""),
+						"date" => $date."",
+						"description" => htmlspecialchars($item->description.""),
+						"audio" => $item->enclosure["url"].""
+					);
+				$rss->insertItem($arFields);
+			}
 		}
 	}
 
@@ -65,7 +71,7 @@ class RssController{
 		$rss_list = array();
 		if($fields){
 			foreach ($fields as $rss_fields) {
-				$rss_list[] = new RssClass($rss_fields['rss_url'], $user_id, $rss_fields['id'], $rss_fields['title']);
+				$rss_list[] = new RssClass($rss_fields['rss_url'], $user_id, $rss_fields['id'], $rss_fields['title'], $rss_fields['date']);
 			}
 		}
 		return $rss_list;

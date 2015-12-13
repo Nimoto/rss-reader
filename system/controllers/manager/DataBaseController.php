@@ -15,7 +15,8 @@ class DataBaseController{
 			"id" => "ID",
 			"user_id" => "user_id",
 			"rss_url" => "rss_url",
-			"title" => "title"
+			"title" => "title",
+			"date" => "refresh_date"
 		); 
 	private $rss_items_fields = array(
 			"id" => "ID",
@@ -26,6 +27,7 @@ class DataBaseController{
 			"user_id" => "user_id",
 			"date" => "date",
 			"audio" => "audio",
+			"read" => "is_readen",
 		); 
  
     private function __clone() {
@@ -268,13 +270,23 @@ class DataBaseController{
 		$this->insert("rss_items", $arFields);
 	}
 
+	public function updateRssItem($set, $where){
+		foreach ($set as $key => $value) {
+			$arSet[$this->rss_items_fields[$key]] = $value;
+		}
+		foreach ($where as $key => $value) {
+			$arWhere[$this->rss_items_fields[$key]] = $value;
+		}
+		$this->update("rss_items", $arSet, $arWhere);		
+	}
+
 	public function updateRss($set, $where){
-		$arSet = array(
-				"title" => $set["title"]
-			);
-		$arWhere = array(
-				"rss_url" => $where["url"]
-			);
+		foreach ($set as $key => $value) {
+			$arSet[$this->rss_fields[$key]] = $value;
+		}
+		foreach ($where as $key => $value) {
+			$arWhere[$this->rss_fields[$key]] = $value;
+		}
 		$this->update("rss", $arSet, $arWhere);		
 	}
 

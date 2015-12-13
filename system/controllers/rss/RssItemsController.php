@@ -38,19 +38,16 @@ class RssItemsController{
 					$this->rss_list[$item["rss_id"]] = RssClass::getById($item["rss_id"]);
 				}
 				$date_nf = $item["date"];
-				$timestamp = strtotime($date_nf);
-				$date = date("Y-m-d H:i:s", $timestamp);
-				while(!empty($items[$date])){
-					$date .= "*";
-				}
-				$items[$date]["title"] = $item["title"];
-				$items[$date]["link"] = $item["link"];
-				$items[$date]["date"] = $date_nf;
-				$items[$date]["description"] = $item["description"];
-				$items[$date]["audio"] = $item["audio"];
+				$items[$item["id"]]["id"] = $item["id"];
+				$items[$item["id"]]["title"] = $item["title"];
+				$items[$item["id"]]["link"] = $item["link"];
+				$items[$item["id"]]["date"] = $date_nf;
+				$items[$item["id"]]["description"] = $item["description"];
+				$items[$item["id"]]["audio"] = $item["audio"];
+				$items[$item["id"]]["read"] = $item["read"];
 				if($this->rss_list[$item["rss_id"]]){
-					$items[$date]["main_title"] = $this->rss_list[$item["rss_id"]]->getProperty("title");
-					$items[$date]["main_link"] = $this->rss_list[$item["rss_id"]]->getProperty("rss_url");			
+					$items[$item["id"]]["main_title"] = $this->rss_list[$item["rss_id"]]->getProperty("title");
+					$items[$item["id"]]["main_link"] = $this->rss_list[$item["rss_id"]]->getProperty("rss_url");			
 				}
 			}
 			$result["items"] = $items;
