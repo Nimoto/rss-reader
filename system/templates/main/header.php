@@ -15,7 +15,6 @@
 		<![endif]-->
 	</head>
 	<body>
-
 		<nav class="navbar navbar-inverse">
 	      <div class="container">
 	        <div class="navbar-header">
@@ -41,3 +40,6 @@
 	    </nav>
 
 		<div class="wrapper container">
+			<div class="player">
+				<audio src="" controls></audio>
+			</div>

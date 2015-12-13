@@ -16,7 +16,7 @@ class RssClass{
 		$arParams = array("id" => $id);
 		$fields = DataBaseController::init()->getRss($arParams);
 		if(!empty($fields)){
-			$rss = new RssClass($fields['rss_url'], $fields['user_id'], $id, $fields["title"]);
+			$rss = new RssClass($fields[0]['rss_url'], $fields[0]['user_id'], $id, $fields[0]["title"]);
 		}else $rss = false;
 		return $rss;
 	}

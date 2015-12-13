@@ -1,9 +1,20 @@
-<?php ?>
+<?php 
+?>
 <ul class="pagination">
- <!--<li><a href="#">&laquo;</a></li>-->
- <?php 
- for($i = 0; $i < $page_count; $i++){?>
- 	<li <?php if($page_num == $i){echo "class='active'";}?>><a href="?<?php echo $page_modif?>=<? echo $i+1;?>"><?php echo $i+1?></a></li>
- <?php }?>
- <!--<li><a href="#">&raquo;</a></li>-->
+<?php if($left_arrow) {?>
+ <li><a onclick="Paginator(this);return false;" href="<?php echo $left_arrow?>">&laquo;</a></li>
+<?php }?>
+ <?php
+ $old_key = 0;
+ foreach ($nums as $key => $value) { 
+ 	if(($key - $old_key) > 1){?>
+ 			<li><span>...</span></li>
+ 	<?php }
+ 	$old_key = $key;?>
+ 	<li <?php if($page_num == $key){echo "class='active'";}?>><a onclick="Paginator(this);return false;" href="?<?php echo $page_modif?>=<? echo $key+1;?>"><?php echo $key+1?></a></li>
+ 	<?php
+ }?>
+<?php if($right_arrow) {?>
+ <li><a onclick="Paginator(this);return false;" href="<?php echo $right_arrow?>">&raquo;</a></li>
+<?php }?>
 </ul>

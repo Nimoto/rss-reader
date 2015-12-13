@@ -25,6 +25,7 @@ class DataBaseController{
 			"link" => "link",
 			"user_id" => "user_id",
 			"date" => "date",
+			"audio" => "audio",
 		); 
  
     private function __clone() {
@@ -47,7 +48,7 @@ class DataBaseController{
 		return self::$connection;
 	}
 
-	private function select($table_name, $arFields, $offset = NULL, $limit = NULL, $only_count = false){
+	private function select($table_name, $arFields, $offset = NULL, $limit = NULL, $only_count = false, $order_field = NULL, $order = "desc"){
 		$sql = "SELECT ";
 		if($only_count){
 			$sql .= "COUNT(*)";
@@ -57,9 +58,29 @@ class DataBaseController{
 		$sql .= " FROM `".$table_name."` WHERE ";
 		$where = "";
 		foreach ($arFields as $field => $value) {
-			$where .= "`".$field."` = '".$value."' AND ";
+			if(is_array($value)){
+				foreach ($value as $val) {
+					$value_sel .= "'".$val."',";
+				}
+
+				$value = "(".substr($value_sel, 0, -1).")";
+				$operand_not = "NOT IN";
+				$operand = "IN";
+			}else{
+				$value = "'".$value."'";
+				$operand_not = "!=";
+				$operand = "=";
+			}
+			if(strpos($field, "!") !== false){
+				$where .= "`".substr($field, 1, strlen($field)-1)."` ".$operand_not." ".$value." AND ";
+			} else {
+				$where .= "`".$field."` ".$operand." ".$value." AND ";
+			}
 		}		
 		$where = substr($where, 0, -5);
+		if($order_field){
+			$where .= " ORDER BY `".$order_field."` ".$order." ";
+		}
 		if($offset !== false){
 			$offset .= ",";
 		}
@@ -242,31 +263,42 @@ class DataBaseController{
 				"link" => $arFields["link"],
 				"user_id" => $rss->getProperty("user_id"),
 				"date" => $arFields["date"],
+				"audio" => $arFields["audio"],
 			);
 		$this->insert("rss_items", $arFields);
 	}
 
 	public function updateRss($set, $where){
-		$this->update("rss_items", $set, $where);		
+		$arSet = array(
+				"title" => $set["title"]
+			);
+		$arWhere = array(
+				"rss_url" => $where["url"]
+			);
+		$this->update("rss", $arSet, $arWhere);		
 	}
 
-	public function getRssItems($arParams, $offset, $limit, $only_count = false){
+	public function getRssItems($arParams, $offset, $limit, $only_count = false, $arSort = NULL){
 		$arFields = array();
 		$field_db = "";
-		foreach ($arParams as $field_name => $value) {
+		foreach ($arParams as $field_name => $value) {			
 			try {
+				$prefix = "";
+				if(strpos($field_name, "!") !== false){
+					$prefix = "!";
+					$field_name = substr($field_name, 1, strlen($field_name)-1);
+				}
 				if(array_key_exists($field_name, $this->rss_items_fields)){
-					$field_db = $this->rss_fields[$field_name];
+					$field_db = $this->rss_items_fields[$field_name];
 				}else{
 					throw new Exception('Некорректное значение поля для выборки.');					
 				}
-				$arFields[$field_db] = $value;	
-
+				$arFields[$prefix.$field_db] = $value;	
 			} catch (Exception $e) {
 				var_dump($e->getMessage());
 			}
 		}	
-		$result = $this->select("rss_items", $arFields, $offset, $limit, $only_count);
+		$result = $this->select("rss_items", $arFields, $offset, $limit, $only_count, $arSort["sort"], $arSort["by"]);
 		if($only_count){
 			return $result[0]["COUNT(*)"];
 		}else{

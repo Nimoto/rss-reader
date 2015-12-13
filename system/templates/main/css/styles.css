@@ -4,6 +4,9 @@
 	display: inline-block;
 	vertical-align: top;
 }*/
+.alert{
+	overflow: hidden;
+}
 
 .delete{
 	float:right;
@@ -19,4 +22,37 @@
 
 .rss-wrapper{
 	overflow: hidden;
+}
+
+#filter .form-line button{
+	width: 100%;
+}
+
+#filter .form-line{
+	margin-bottom: 5px;
+}
+#filter2 button{
+	margin-bottom: 5px;
+}
+
+
+p.lead > *{
+	vertical-align: middle;
+}
+
+.audio-click > *{
+	font-size: 30px;
+	vertical-align: bottom;
+}
+
+.player{
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	z-index:1000;
+	display: none;
+}
+
+.pagination{
+	padding-left:15px!important;
 }

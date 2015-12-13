@@ -7,29 +7,31 @@ class RssItemsController{
 	private $view;
 	private $rss_list;
 	private $count;
+	private $arParams;
 	private $paginator;
 
-	public function __construct($user_id, $tpl, $limit = 5){
+	public function __construct($user_id, $tpl, $arParams = NULL, $limit = 10){
 		$this->user_id = $user_id;
 		$this->limit = $limit;
 		$this->template = $tpl;
 		$this->view = new View();
 		$this->paginator = new PaginatorClass();
 		$this->page = $this->paginator->getProperty("page_num");
-		$arParams = array("user_id" => $this->user_id);
-		$this->paginator->setProperty("page_count", round(DataBaseController::init()->getRssItems($arParams, NULL, NULL, true)/$limit));
+		$this->arParams = $arParams;
+		$arParams["user_id"] = $this->user_id;
+		$this->paginator->setProperty("page_count", ceil(DataBaseController::init()->getRssItems($arParams, NULL, NULL, true)/$limit));
 	}
 
-	private function getAllRssItems(){
+	private function getAllRssItems($arSort = NULL){
 		$offset = $this->limit * $this->page;
-		$arParams = array("user_id" => $this->user_id);
-		$items = DataBaseController::init()->getRssItems($arParams, $offset, $this->limit);
+		$this->arParams["user_id"] = $this->user_id;
+		$items = DataBaseController::init()->getRssItems($this->arParams, $offset, $this->limit, false, $arSort);
 		return $items;		
 	}
 
-	private function createRss(){
+	private function createRss($arSort = NULL){
 		$items = array();
-		$lenta = $this->getAllRssItems();
+		$lenta = $this->getAllRssItems($arSort);
 		if(!empty($lenta["items"])){
 			foreach ($lenta["items"] as $item) {
 				if(!$this->rss_list[$item["rss_id"]]){
@@ -45,12 +47,12 @@ class RssItemsController{
 				$items[$date]["link"] = $item["link"];
 				$items[$date]["date"] = $date_nf;
 				$items[$date]["description"] = $item["description"];
+				$items[$date]["audio"] = $item["audio"];
 				if($this->rss_list[$item["rss_id"]]){
 					$items[$date]["main_title"] = $this->rss_list[$item["rss_id"]]->getProperty("title");
-					$items[$date]["main_link"] = $this->rss_list[$item["rss_id"]]->getProperty("url");			
+					$items[$date]["main_link"] = $this->rss_list[$item["rss_id"]]->getProperty("rss_url");			
 				}
 			}
-			krsort($items);
 			$result["items"] = $items;
 		}else{
 			$result["message"] = "Вы не подписаны ни на одну ленту. Перейти в <a href='/personal/'>Личный кабинет</a>";
@@ -58,8 +60,8 @@ class RssItemsController{
 		return $result;
 	}
 
-	public function printRssItems(){
-		$data = $this->createRss();
+	public function printRssItems($arSort = NULL){
+		$data = $this->createRss($arSort);
 		$this->include_tpl($this->template, $data);
 	}
 

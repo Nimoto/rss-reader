@@ -42,8 +42,9 @@ class RssController{
 			$arFields = array(
 					"title" => htmlspecialchars($item->title.""),
 					"link" => htmlentities($item->link.""),
-					"date" => $date_nf."",
+					"date" => $date."",
 					"description" => htmlspecialchars($item->description.""),
+					"audio" => $item->enclosure["url"].""
 				);
 			$rss->insertItem($arFields);
 		}
@@ -80,7 +81,7 @@ class RssController{
 				}else{
 					$text = $rss->getProperty("url");
 				}
-				$data["urls"][] = $rss->getProperty("url");
+				$data["urls"][$rss->getProperty("id")] = $rss->getProperty("url");
 			}
 			$this->include_tpl($this->template, $data);		
 		}
