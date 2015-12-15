@@ -50,7 +50,7 @@ class DataBaseController{
 		return self::$connection;
 	}
 
-	private function select($table_name, $arFields, $offset = NULL, $limit = NULL, $only_count = false, $order_field = NULL, $order = "desc"){
+	private function select($table_name, $arFields, $offset = NULL, $limit = NULL, $only_count = false, $arSort = NULL){
 		$sql = "SELECT ";
 		if($only_count){
 			$sql .= "COUNT(*)";
@@ -80,14 +80,21 @@ class DataBaseController{
 			}
 		}		
 		$where = substr($where, 0, -5);
-		if($order_field){
+		/*if($order_field){
 			$where .= " ORDER BY `".$order_field."` ".$order." ";
+		}*/
+		$order = "";
+		foreach ($arSort as $field => $sort) {
+			$order .= "`".$field."` ".$sort.", ";
+		}
+		if($order){
+			$order = " ORDER BY ".substr($order, 0, -2);
 		}
 		if($offset !== false){
 			$offset .= ",";
 		}
 		if($limit){
-			$where .= " LIMIT ".$offset.$limit.";";
+			$where .= $order." LIMIT ".$offset.$limit.";";
 		}
 		$sql .= $where;
 		$result = $this->mysqli->query($sql);
@@ -310,7 +317,7 @@ class DataBaseController{
 				var_dump($e->getMessage());
 			}
 		}	
-		$result = $this->select("rss_items", $arFields, $offset, $limit, $only_count, $arSort["sort"], $arSort["by"]);
+		$result = $this->select("rss_items", $arFields, $offset, $limit, $only_count, $arSort);
 		if($only_count){
 			return $result[0]["COUNT(*)"];
 		}else{

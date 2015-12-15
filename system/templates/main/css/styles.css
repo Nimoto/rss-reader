@@ -31,8 +31,13 @@
 #filter .form-line{
 	margin-bottom: 5px;
 }
-#filter2 button{
+.rss-points-wrap{	
+	min-height: 100px;
+}
+
+.rss-points-wrap button{
 	margin-bottom: 5px;
+	margin-right: 5px;
 }
 
 
@@ -68,4 +73,45 @@ p.lead > *{
 .clear{
 	float: none;
 	clear: both;
+}
+
+.loader{
+	width: 23px;
+	height: 23px;
+	vertical-align: initial;
+}
+
+.filter-span{
+	display: inline;
+	vertical-align: baseline;
+	vertical-align: -moz-middle-with-baseline;
+}
+
+.filter-span-wrap{
+	height: 100%;
+}
+
+.select{
+	background: #fff;
+	border: 1px solid #FAEBCC;
+	border-radius: 4px;
+	height: 100px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.select .option{
+	padding: 5px;
+	border-bottom: 1px solid #FAEBCC;
+	cursor: pointer;
+}
+.select .option.active{
+	background: #D6E9C6;
+}
+.select .option:hover{
+	background: #39B3D7;
+	color: #fff;
+}
+.select .option:last-child{
+	border-bottom: none;
 }

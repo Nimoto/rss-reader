@@ -5,35 +5,41 @@ class RssController{
 	private $template;
 	private $rss_list;
 
-	function __construct($user_id, $template = NULL){
+	function __construct($user_id, $template=NULL, $arFilter = NULL){
 		$this->template = $template;
 		$this->user_id = $user_id;
 		$this->view = new View();
-		$this->rss_list = $this->getAllRssByUserId($this->user_id);
+		$this->rss_list = $this->getAllRssByUserId($this->user_id, $arFilter);
 	}
 
-	private function parseXml($url){
-		$rxml = new XMLReader();
-		$rxml->xml(file_get_contents($url));
-		while($rxml->read() && $rxml->name !== 'title');
-		while($rxml->read() && $rxml->name !== 'item'){
-			$name = $rxml->name;
-			if($name == "#text" && strlen($rxml->value) > 2) 
-				$value = $rxml->value;
-			else if($name != "#text") $result[$name] = $value;
+	private function parseXml($url, $rss = NULL){
+		$xml = simplexml_load_file($url);
+		foreach ($xml->channel as $fields) {
+			foreach ($fields as $key => $value) {
+				if($key != "item"){
+					$result[$key] = $value."";
+				}else if($key == "item"){
+					$result["items"][$value->pubDate.""] = $value;
+				}
+			}
 		}
-		while($rxml->name === 'item'){      
-			$note = new SimpleXMLElement($rxml->readOuterXML());
-		    if($note->pubDate) $result["items"][$note->pubDate.""] = $note;
-		    else $result["items"][] = $note;
-		    $rxml->next('item');
+		foreach ($xml as $fields) {
+			foreach ($fields as $key => $value) {
+				$result["items"][] = array();
+				$result["items"][count($result["items"])-1][$key] = $value;
+			}
 		}
+		/*if($url == "http://feeds.feedburner.com/Eao197?format=xml"){
+			echo "<pre>";
+			print_r($xml);
+			echo "</pre>";
+		}*/
 		return $result;
 	}
 
 	private function updateOneRss($rss){
 		$one_url = $rss->getProperty("url");
-		$lenta = $this->parseXml($one_url);
+		$lenta = $this->parseXml($one_url, $rss);
 		$rss->setTitle($lenta["title"]);
 		$last_update = $rss->getProperty("date");
 
@@ -43,7 +49,9 @@ class RssController{
 		foreach ($lenta["items"] as $date_nf => $item) {
 			$timestamp = strtotime($date_nf);
 			$date = date("Y-m-d H:i:s", $timestamp);
+			//echo "=============>".$date_nf." ".$date." ".$last_update."<br />";
 			if($date > $last_update){
+
 				$arFields = array(
 						"title" => htmlspecialchars($item->title.""),
 						"link" => htmlentities($item->link.""),
@@ -65,8 +73,9 @@ class RssController{
 	}
 
 
-	public function getAllRssByUserId($user_id){
-		$arParams = array("user_id" => $user_id);
+	public function getAllRssByUserId($user_id, $arFilter = NULL){
+		$arParams = $arFilter;
+		$arParams["user_id"] = $user_id;
 		$fields = DataBaseController::init()->getRss($arParams);
 		$rss_list = array();
 		if($fields){

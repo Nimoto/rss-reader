@@ -8,7 +8,7 @@ if($_POST["user_id"]){
 }
 
 if(!empty($arWhere)){
-	$arSet = array("read" => true);
+	$arSet = array("read" => $_POST["action"]);
 	DataBaseController::init()->updateRssItem($arSet, $arWhere);
 }
 ?>

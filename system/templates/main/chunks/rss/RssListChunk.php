@@ -4,7 +4,7 @@
 		<?php
 		if($value['read']){
 			$main_class = "alert-success";
-			$read = "<i class=\"glyphicon glyphicon-ok\"></i>";
+			$read = "<a onclick=\"IsNotRead(this, '".$value['id']."');return false;\" href=\"#\"><i class=\"glyphicon glyphicon-ok\"></i></a>";
 		}else{
 			$main_class = "alert-info";
 			$read = "<a onclick=\"IsRead(this, '".$value['id']."');return false;\" href=\"#\">отметить как<br />прочитанное</a>";
@@ -14,7 +14,7 @@
 			<div class="rss-wrapper alert <?php echo $main_class;?> rss-wrap-<?php echo $value['id']?>"  role="alert">
 				<div class="lead-wrap">
 					<p class="lead">
-						<a href="<?php echo $value['link']?>"><?php echo $value['title'];?></a> 
+						<a target="_blank" href="<?php echo $value['link']?>"><?php echo $value['title'];?></a> 
 						<?php if($value["audio"]){?>
 							<a href="#" class="audio-click" onclick="PlayPodcast('<?php echo $value["audio"]?>');return false;"><i class="glyphicon glyphicon-volume-up"></i></a>
 						<?php }?>

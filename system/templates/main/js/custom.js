@@ -9,6 +9,14 @@ function DeleteRss(user_id, url, parent_id){
 	return false;
 }
 
+function RefreshRss(){	
+	$(".refresh").html("<img class='loader' src='/system/templates/main/img/loader.png'>");
+	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {refresh: 1}, function(){
+		$(".refresh").html("<i class=\"glyphicon glyphicon-refresh\"></i>");		
+	});
+	return false;
+}
+
 function PlayPodcast(url){
 	$(".player").css("display", "block");
 	$(".player audio").attr("src", url);
@@ -54,19 +62,18 @@ function SortRead(direct){
 
 function ExcludeRss(el, id){
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {exclude_rss: id}, function(){
-		$(el).removeClass("btn-info");
-		$(el).addClass("btn-default");
-		$(el).attr("onclick", "IncludeRss(this, '"+id+"');return false;");
+		$(el).remove();
 	});
 }
 
+/*
 function IncludeRss(el, id){
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {include_rss: id}, function(){
 		$(el).removeClass("btn-default");
 		$(el).addClass("btn-info");
 		$(el).attr("onclick", "ExcludeRss(this, '"+id+"');return false;");
 	});
-}
+}*/
 
 function Paginator(el){
 	$(".rss-items-wrap").load($(el).attr("href") + " .rss-items-wrap > *", function(){
@@ -81,11 +88,24 @@ function IsRead(el, id){
 	$.ajax({
 	  type: "POST",
 	  url: "/include/ajax/isRead.php",
-	  data: { id: id }
+	  data: { id: id, action: 1 }
 	}).done(function( msg ) {
-		$(el).parent().html("<i class=\"glyphicon glyphicon-ok\"></i>");
+		$(el).parent().html("<a onclick=\"IsNotRead(this, '"+id+"');return false;\" href=\"#\"><i class=\"glyphicon glyphicon-ok\"></i></a>");
 		$(".rss-wrap-"+id).removeClass("alert-info");
 		$(".rss-wrap-"+id).addClass("alert-success");
+	});
+	return false;
+}
+
+function IsNotRead(el, id){
+	$.ajax({
+	  type: "POST",
+	  url: "/include/ajax/isRead.php",
+	  data: { id: id, action: 0 }
+	}).done(function( msg ) {
+		$(el).parent().html("<a onclick=\"IsRead(this, '"+id+"');return false;\" href=\"#\">отметить как<br />прочитанное</a>");
+		$(".rss-wrap-"+id).removeClass("alert-success");
+		$(".rss-wrap-"+id).addClass("alert-info");
 	});
 	return false;
 }
@@ -94,11 +114,19 @@ function ReadAllRss(user_id){
 	$.ajax({
 	  type: "POST",
 	  url: "/include/ajax/isRead.php",
-	  data: { user_id: user_id }
+	  data: { user_id: user_id, action: 1 }
 	}).done(function( msg ) {
-		$(".is-read").html("<i class=\"glyphicon glyphicon-ok\"></i>");
+		$(".is-read").html("<a onclick=\"IsNotRead(this, '"+user_id+"');return false;\" href=\"#\"><i class=\"glyphicon glyphicon-ok\"></i></a>");
 		$(".rss-wrapper").removeClass("alert-info");
 		$(".rss-wrapper").addClass("alert-success");
 	});
 	return false;
+}
+
+function ChooseRss(id){
+	$("#rss"+id).addClass("active");
+	$(".rss-points-wrap").append('<button name="exclude_rss" onclick="ExcludeRss(this, '+id+'); return false;" value="'+id+'" type="submit" class="btn btn-info">'+$("#rss"+id).html()+'<i class="glyphicon glyphicon-remove"></i></button>');	
+	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {include_rss: id}, function(){
+		
+	});
 }

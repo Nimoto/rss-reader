@@ -18,7 +18,7 @@ if(!$_USER){?>
 		$authForm->addField(new Field("login", "Ваш логин", "text", null, "not_empty"));
 		$authForm->addField(new Field("pass", "Ваш пароль", "password", null, "not_empty"));
 		$authForm->addButton(new Field("send", "Отправить", "submit", null));
-		$authControl = new AuthFormController($arParams, $authForm, "/personal/");
+		$authControl = new AuthFormController($arParams, $authForm, "/");
 		?>
 	</div>
 	<div class="col-md-4"></div>
@@ -26,19 +26,28 @@ if(!$_USER){?>
 <?php } else {?>
 	<div class="row">
 		<div class="col-md-12">
-			<h1>Мои RSS-ленты <small><a href="?refresh=1"><i class="glyphicon glyphicon-refresh"></i></a></small></h1>
+			<h1>Мои RSS-ленты <small><a class="refresh" onclick="RefreshRss();return false;" href="#"><i class="glyphicon glyphicon-refresh"></i></a></small></h1>
 		</div>
 	</div>
 	<?php
 		if($_POST["date"] || $_POST["read"]){
 			$_SESSION["sort"] = $_POST;
 		}
-		if($_POST["exclude_rss"]){
-			$_SESSION["sort"]["exclude_rss"][$_POST["exclude_rss"]] = $_POST["exclude_rss"];
-		}
 		if($_POST["include_rss"]){
-			unset($_SESSION["sort"]["exclude_rss"][$_POST["include_rss"]]);
+			$_SESSION["sort"]["include_rss"][$_POST["include_rss"]] = $_POST["include_rss"];
 		}
+		if($_POST["exclude_rss"]){
+			unset($_SESSION["sort"]["include_rss"][$_POST["exclude_rss"]]);
+		}
+
+		$arParams = array();
+
+		if($_SESSION["sort"]["include_rss"]){
+			foreach ($_SESSION["sort"]["include_rss"] as $id) {
+				$arParams["rss_id"][] = $id;
+			}
+		}
+
 		$date_glif = "glyphicon glyphicon-sort-by-attributes-alt";
 		$date_button = "btn btn-warning";
 		$date_sort = "asc";
@@ -73,9 +82,9 @@ if(!$_USER){?>
 	<div class="row filter">
 		<div class="col-md-12">
 			<div class="alert alert-warning" role="alert">
-				<form id="filter" class="col-md-12" action="" method="post">
-					<div class="form-line col-md-2">
-						<span>Сортировать:</span> 
+				<form id="filter" class="col-md-12 filter-main" action="" method="post">
+					<div class="form-line filter-span-wrap col-md-2">
+						<span class="form-line filter-span">Сортировать:</span> 
 					</div>
 					<div class="form-line col-md-2">
 						<button type="submit" name="date" value="<?php echo $date_sort?>" onclick="SortDate('<?php echo $date_sort?>');return false;" class="date-f <?php echo $date_button?>"><span>Дате <i class="<?php echo $date_glif?>"></i></span></button>
@@ -93,37 +102,43 @@ if(!$_USER){?>
 				<div col="col-md-6"></div>
 			</div>
 			<div class="alert alert-warning" role="alert">
-				<div class="col-md-12">
+				<div class="form-line col-md-3">
 					<?php
-						$rss_controller = new RssController($_USER->getProperty("id"), "rss/RssFilterChunk.php");
+						$rss_controller = new RssController($_USER->getProperty("id"), "rss/RssSelectFilterChunk.php");
 						if($rss_controller){
 							$rss_controller->PrintRssList();
+						}
+					?>
+				</div>
+				<div class="col-md-9 rss-points-wrap">					
+					<?php
+						if($arParams){
+							$arFilter["id"] = $arParams["rss_id"];
+							$rss_controller = new RssController($_USER->getProperty("id"), "rss/RssFilterChunk.php", $arFilter);
+							if($rss_controller){
+								$rss_controller->PrintRssList();
+							}
 						}
 					?>
 				</div>
 			</div>
 		</div>
 	</div>
-	<?php if($_GET["refresh"] == 1){
+	<?php if($_POST["refresh"] == 1){
 		$rss_controller = new RssController($_USER->getProperty("id"));
 		$rss_controller->updateRss();
 	}
-	$arSort["sort"] = "date";
-	$arSort["by"] = "desc";
+
 	if($_SESSION["sort"]["date"]){
-		$arSort["sort"] = "date";
-		$arSort["by"] = $_SESSION["sort"]["date"];		
+		$arSort["date"] = $_SESSION["sort"]["date"];
 	}
 	if($_SESSION["sort"]["read"]){
-		$arSort["sort"] = "is_readen";
-		$arSort["by"] = $_SESSION["sort"]["read"];		
+		$arSort["is_readen"] = $_SESSION["sort"]["read"];
+		$arSort["date"] = "desc";
 	}
-	$arParams = array();
 
-	if($_SESSION["sort"]["exclude_rss"]){
-		foreach ($_SESSION["sort"]["exclude_rss"] as $id) {
-			$arParams["!rss_id"][] = $id;
-		}
+	if(empty($arSort)){
+		$arSort["date"] = "desc";		
 	}
 ?>
 <div class="row rss-items-wrap">
