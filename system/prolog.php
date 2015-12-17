@@ -1,5 +1,8 @@
 <?php
 session_start();
+if(!$_COOKIE["login"] && $_SESSION["login"]){
+	setcookie("login", $_SESSION["login"]);
+}
 //error_reporting(E_ERROR);
 require "settings.php";
 include(CONTROLLER_PATH."manager/DataBaseController.php");
@@ -23,20 +26,19 @@ include(CONTROLLER_PATH."rss/RssController.php");
 include(CONTROLLER_PATH."rss/RssItemsController.php");
 include(CONTROLLER_PATH."paginator/PaginatorController.php");
 
-$_ADDRESS = $_SERVER["REQUEST_URI"];
+$_ADDRESS = str_replace("/rss", "", $_SERVER["REQUEST_URI"]);
+
 
 $pages = array(
 		"/" => "index.php",
-		"/auth/" => "auth.php",
-		"/register/" => "register.php"
 );
 
 $_ROUTER = MainRouter::createRouter($pages);
 global $_USER;
-if($_SESSION["login"]){
-	$_USER = UserClass::getByLogin($_SESSION["login"]);
+if($_COOKIE["login"]){
+	$_USER = UserClass::getByLogin($_COOKIE["login"]);
 	if($_USER->getProperty("active") == false){
-		unset($_SESSION["login"]);
+		unset($_COOKIE["login"]);
 		unset($_USER);
 	}
 }

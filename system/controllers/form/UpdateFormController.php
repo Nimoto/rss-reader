@@ -24,7 +24,8 @@ class UpdateFormController extends MainFormController{
 						"login" => $this->_FORMDATA["login"],
 						"email" => $this->_FORMDATA["email"],
 						"full_name" => $this->_FORMDATA["full_name"],
-						"pass" => $this->_FORMDATA["pass"]
+						"pass" => $this->_FORMDATA["pass"],
+						"active" => 1
 					);
 				UserClass::updateUser($arFields);
 				$messages["success"] = "Информация обновлена.";		

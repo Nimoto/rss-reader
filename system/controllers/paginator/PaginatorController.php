@@ -43,10 +43,12 @@ class PaginatorController{
 			$data["nums"][0] = 1;
 
 			if($this->paginator->getProperty("page_num") > 0) $data["nums"][$this->paginator->getProperty("page_num")-1] = 1;
-			else $data["nums"][$this->paginator->getProperty("page_num")+2] = 1;
+			else if($this->paginator->getProperty("page_num")+2 < $this->paginator->getProperty("page_count")-1) $data["nums"][$this->paginator->getProperty("page_num")+2] = 1;
+
 			$data["nums"][$this->paginator->getProperty("page_num")] = 1;
+
 			if($this->paginator->getProperty("page_num") < ($this->paginator->getProperty("page_count") - 1))  $data["nums"][$this->paginator->getProperty("page_num")+1] = 1;
-			else $data["nums"][$this->paginator->getProperty("page_num")-2] = 1;
+			else if($this->paginator->getProperty("page_num") > $this->paginator->getProperty("page_count")-1) $data["nums"][$this->paginator->getProperty("page_num")-2] = 1;
 
 			$data["nums"][$this->paginator->getProperty("page_count")-1] = 1;
 
@@ -56,6 +58,9 @@ class PaginatorController{
 		$data["page_count"] = $this->paginator->getProperty("page_count");
 		$data["page_num"] = $this->paginator->getProperty("page_num");
 		$data["page_modif"] = $this->paginator->getProperty("page_modif");
+		/*echo "<pre>";
+		print_r($data);
+		echo "</pre>";*/
 		$this->include_tpl($this->template, $data);
 	}
 

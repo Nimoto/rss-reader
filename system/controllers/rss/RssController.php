@@ -13,13 +13,16 @@ class RssController{
 	}
 
 	private function parseXml($url, $rss = NULL){
-		$xml = simplexml_load_file($url);
+		$xml = simplexml_load_file($url);;
+
 		foreach ($xml->channel as $fields) {
-			foreach ($fields as $key => $value) {
-				if($key != "item"){
-					$result[$key] = $value."";
-				}else if($key == "item"){
-					$result["items"][$value->pubDate.""] = $value;
+			if(!empty($fields)){
+				foreach ($fields as $key => $value) {		
+					if($key != "item"){
+						$result[$key] = $value."";
+					}else if($key == "item"){
+						$result["items"][$value->pubDate.""] = $value;
+					}
 				}
 			}
 		}
@@ -37,7 +40,7 @@ class RssController{
 		return $result;
 	}
 
-	private function updateOneRss($rss){
+	public function updateOneRss($rss){
 		$one_url = $rss->getProperty("url");
 		$lenta = $this->parseXml($one_url, $rss);
 		$rss->setTitle($lenta["title"]);
@@ -51,7 +54,6 @@ class RssController{
 			$date = date("Y-m-d H:i:s", $timestamp);
 			//echo "=============>".$date_nf." ".$date." ".$last_update."<br />";
 			if($date > $last_update){
-
 				$arFields = array(
 						"title" => htmlspecialchars($item->title.""),
 						"link" => htmlentities($item->link.""),
@@ -59,12 +61,12 @@ class RssController{
 						"description" => htmlspecialchars($item->description.""),
 						"audio" => $item->enclosure["url"].""
 					);
-				$rss->insertItem($arFields);
+				if($arFields["title"] && $arFields["link"] && $arFields["description"]) $rss->insertItem($arFields);
 			}
 		}
 	}
 
-	public function updateRss(){
+	public function updateRss($rss = NULL){
 		if(!empty($this->rss_list)){
 			foreach ($this->rss_list as $rss) {
 				$this->updateOneRss($rss);

@@ -1,5 +1,5 @@
 <?php
-include($_SERVER["DOCUMENT_ROOT"]."/system/prolog.php");
+include($_SERVER["DOCUMENT_ROOT"]."/rss/system/prolog.php");
 if($_POST["id"]){
 	$arWhere = array("id" => $_POST["id"]);
 }

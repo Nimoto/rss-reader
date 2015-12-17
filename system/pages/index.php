@@ -1,7 +1,7 @@
 <?php
 global $_USER;
 if($_GET["logout"] == "yes"){
-	unset($_SESSION["login"]);
+	unset($_COOKIE["login"]);
 	unset($_USER);
 }
 if(!$_USER){?>
@@ -30,8 +30,11 @@ if(!$_USER){?>
 		</div>
 	</div>
 	<?php
-		if($_POST["date"] || $_POST["read"]){
-			$_SESSION["sort"] = $_POST;
+		if($_POST["date"]){
+			$_SESSION["sort"]['date'] = $_POST['date'];
+		}
+		if($_POST["read"] == -1 || $_POST["read"] == 1){
+			$_SESSION["sort"]['read'] = $_POST['read'];
 		}
 		if($_POST["include_rss"]){
 			$_SESSION["sort"]["include_rss"][$_POST["include_rss"]] = $_POST["include_rss"];
@@ -51,9 +54,9 @@ if(!$_USER){?>
 		$date_glif = "glyphicon glyphicon-sort-by-attributes-alt";
 		$date_button = "btn btn-warning";
 		$date_sort = "asc";
-		$read_glif = "glyphicon glyphicon-sort-by-attributes-alt";
 		$read_button = "btn btn-success";
-		$read_sort = "asc";
+		$read_sort = 1;
+
 		if($_SESSION["sort"]["date"] == "desc"){
 			$date_glif = "glyphicon glyphicon-sort-by-attributes-alt";
 			$date_button = "btn btn-warning";
@@ -64,16 +67,14 @@ if(!$_USER){?>
 			$date_button = "btn btn-warning";
 			$read_button = "btn btn-success";
 			$date_sort = "desc";
-		}else if($_SESSION["sort"]["read"] == "desc"){
-			$read_glif = "glyphicon glyphicon-sort-by-attributes-alt";
-			$read_button = "btn btn-warning";
-			$date_button = "btn btn-success";
-			$read_sort = "asc";
-		}else if($_SESSION["sort"]["read"] == "asc"){
-			$read_glif = "glyphicon glyphicon-sort-by-attributes";
-			$read_button = "btn btn-warning";
-			$date_button = "btn btn-success";
-			$read_sort = "desc";
+		}
+
+		if($_SESSION["sort"]["read"] == -1){
+			$read_button = "btn btn-success";
+			$read_sort = 1;
+		}else if($_SESSION["sort"]["read"] == 1){
+			$read_button = "btn btn-default";
+			$read_sort = -1;
 		}
 	?>
 
@@ -89,10 +90,10 @@ if(!$_USER){?>
 					<div class="form-line col-md-2">
 						<button type="submit" name="date" value="<?php echo $date_sort?>" onclick="SortDate('<?php echo $date_sort?>');return false;" class="date-f <?php echo $date_button?>"><span>Дате <i class="<?php echo $date_glif?>"></i></span></button>
 					</div>
-					<div class="form-line col-md-2">
-						<button type="submit" name="read" value="<?php echo $read_sort?>" onclick="SortRead('<?php echo $date_sort?>');return false;" class="read-f <?php echo $read_button?>">Прочтению <i class="<?php echo $read_glif?>"></i></button>
-					</div>
 					<div class="form-line col-md-3">
+						<button type="submit" name="read" value="<?php echo $read_sort?>" onclick="SortRead('<?php echo $read_sort?>');return false;" class="read-f <?php echo $read_button?>">Скрыть прочитанные</button>
+					</div>
+					<div class="form-line col-md-2">
 						
 					</div>
 					<div class="form-line col-md-3">
@@ -132,9 +133,9 @@ if(!$_USER){?>
 	if($_SESSION["sort"]["date"]){
 		$arSort["date"] = $_SESSION["sort"]["date"];
 	}
-	if($_SESSION["sort"]["read"]){
-		$arSort["is_readen"] = $_SESSION["sort"]["read"];
-		$arSort["date"] = "desc";
+
+	if($_SESSION["sort"]["read"] == 1){
+		$arParams["read"] = 0;
 	}
 
 	if(empty($arSort)){

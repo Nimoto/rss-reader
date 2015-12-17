@@ -59,33 +59,37 @@ class DataBaseController{
 		}
 		$sql .= " FROM `".$table_name."` WHERE ";
 		$where = "";
-		foreach ($arFields as $field => $value) {
-			if(is_array($value)){
-				foreach ($value as $val) {
-					$value_sel .= "'".$val."',";
-				}
+		if(is_array($arFields)){
+			foreach ($arFields as $field => $value) {
+				if(is_array($value)){
+					foreach ($value as $val) {
+						$value_sel .= "'".$val."',";
+					}
 
-				$value = "(".substr($value_sel, 0, -1).")";
-				$operand_not = "NOT IN";
-				$operand = "IN";
-			}else{
-				$value = "'".$value."'";
-				$operand_not = "!=";
-				$operand = "=";
-			}
-			if(strpos($field, "!") !== false){
-				$where .= "`".substr($field, 1, strlen($field)-1)."` ".$operand_not." ".$value." AND ";
-			} else {
-				$where .= "`".$field."` ".$operand." ".$value." AND ";
-			}
-		}		
+					$value = "(".substr($value_sel, 0, -1).")";
+					$operand_not = "NOT IN";
+					$operand = "IN";
+				}else{
+					$value = "'".$value."'";
+					$operand_not = "!=";
+					$operand = "=";
+				}
+				if(strpos($field, "!") !== false){
+					$where .= "`".substr($field, 1, strlen($field)-1)."` ".$operand_not." ".$value." AND ";
+				} else {
+					$where .= "`".$field."` ".$operand." ".$value." AND ";
+				}
+			}	
+		}	
 		$where = substr($where, 0, -5);
 		/*if($order_field){
 			$where .= " ORDER BY `".$order_field."` ".$order." ";
 		}*/
 		$order = "";
-		foreach ($arSort as $field => $sort) {
-			$order .= "`".$field."` ".$sort.", ";
+		if(is_array($arSort)){
+			foreach ($arSort as $field => $sort) {
+				$order .= "`".$field."` ".$sort.", ";
+			}
 		}
 		if($order){
 			$order = " ORDER BY ".substr($order, 0, -2);
@@ -237,6 +241,11 @@ class DataBaseController{
 				"rss_url" => $arParams["rss_url"]
 			);
 		$this->insert("rss", $arFields);
+		$fields = $this->select("rss", $arFields);
+		if(!empty($fields)){
+			$rss = RssClass::getById($fields[0]["ID"]);
+		}else $rss = false;
+		return $rss;
 	}
 
 	public function activateUser($email, $code){
@@ -253,6 +262,14 @@ class DataBaseController{
 				"user_id" => $arParams["user_id"],
 				"rss_url" => $arParams["url"]
 			);
+		$fields = $this->select("rss", $arFields);
+		if($fields){
+			$arFields = array(
+					"user_id" => $arParams["user_id"],
+					"ID_rss" => $fields[0]["ID"],
+				);
+			$this->delete("rss_items", $arFields);
+		}
 		$this->delete("rss", $arFields);
 	}
 

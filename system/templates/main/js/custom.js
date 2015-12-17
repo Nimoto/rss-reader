@@ -1,7 +1,7 @@
 function DeleteRss(user_id, url, parent_id){
 	$.ajax({
 	  type: "POST",
-	  url: "/include/ajax/deleteRss.php",
+	  url: "/rss/include/ajax/deleteRss.php",
 	  data: { user_id: user_id, url: url }
 	}).done(function( msg ) {
 	  $("#"+parent_id).remove();
@@ -10,7 +10,7 @@ function DeleteRss(user_id, url, parent_id){
 }
 
 function RefreshRss(){	
-	$(".refresh").html("<img class='loader' src='/system/templates/main/img/loader.png'>");
+	$(".refresh").html("<img class='loader' src='/rss/system/templates/main/img/loader.png'>");
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {refresh: 1}, function(){
 		$(".refresh").html("<i class=\"glyphicon glyphicon-refresh\"></i>");		
 	});
@@ -25,8 +25,6 @@ function PlayPodcast(url){
 }
 
 function SortDate(direct){
-	$(".read-f").removeClass("btn-warning");
-	$(".read-f").addClass("btn-success");
 	$(".date-f").removeClass("btn-success");
 	$(".date-f").addClass("btn-warning");
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {date: direct}, function(){
@@ -42,27 +40,24 @@ function SortDate(direct){
 	});
 }
 function SortRead(direct){
-	$(".date-f").removeClass("btn-warning");
-	$(".date-f").addClass("btn-success");
-	$(".read-f").removeClass("btn-success");
-	$(".read-f").addClass("btn-warning");
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {read: direct}, function(){
-		if(direct == "asc"){
-			$(".read-f").attr("onclick", "SortRead('desc');return false;");
-			$(".read-f i").removeClass("glyphicon-sort-by-attributes-alt");
-			$(".read-f i").addClass("glyphicon-sort-by-attributes");
+		if(direct == -1){
+			$(".read-f").attr("onclick", "SortRead(1);return false;");
+			$(".read-f").addClass("btn-success");
+			$(".read-f").removeClass("btn-default");
 		}else{
-			$(".read-f").attr("onclick", "SortRead('asc');return false;");
-			$(".read-f i").removeClass("glyphicon-sort-by-attributes");
-			$(".read-f i").addClass("glyphicon-sort-by-attributes-alt");
-		}
-		
+			$(".read-f").addClass("btn-default");
+			$(".read-f").removeClass("btn-success");
+			$(".read-f").attr("onclick", "SortRead(-1);return false;");
+		}		
 	});
 }
 
 function ExcludeRss(el, id){
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {exclude_rss: id}, function(){
 		$(el).remove();
+		$("#rss"+id).attr("onclick", "ChooseRss("+id+");return false;");
+		$("#rss"+id).removeClass("active");
 	});
 }
 
@@ -87,12 +82,16 @@ function Paginator(el){
 function IsRead(el, id){
 	$.ajax({
 	  type: "POST",
-	  url: "/include/ajax/isRead.php",
+	  url: "/rss/include/ajax/isRead.php",
 	  data: { id: id, action: 1 }
 	}).done(function( msg ) {
-		$(el).parent().html("<a onclick=\"IsNotRead(this, '"+id+"');return false;\" href=\"#\"><i class=\"glyphicon glyphicon-ok\"></i></a>");
-		$(".rss-wrap-"+id).removeClass("alert-info");
-		$(".rss-wrap-"+id).addClass("alert-success");
+		if($(".read-f").val() == "-1"){
+			$(".rss-wrap-"+id).parent().remove();
+		}else{
+			$(el).parent().html("<a onclick=\"IsNotRead(this, '"+id+"');return false;\" href=\"#\"><i class=\"glyphicon glyphicon-ok\"></i></a>");
+			$(".rss-wrap-"+id).removeClass("alert-info");
+			$(".rss-wrap-"+id).addClass("alert-success");
+		}
 	});
 	return false;
 }
@@ -100,7 +99,7 @@ function IsRead(el, id){
 function IsNotRead(el, id){
 	$.ajax({
 	  type: "POST",
-	  url: "/include/ajax/isRead.php",
+	  url: "/rss/include/ajax/isRead.php",
 	  data: { id: id, action: 0 }
 	}).done(function( msg ) {
 		$(el).parent().html("<a onclick=\"IsRead(this, '"+id+"');return false;\" href=\"#\">отметить как<br />прочитанное</a>");
@@ -113,7 +112,7 @@ function IsNotRead(el, id){
 function ReadAllRss(user_id){
 	$.ajax({
 	  type: "POST",
-	  url: "/include/ajax/isRead.php",
+	  url: "/rss/include/ajax/isRead.php",
 	  data: { user_id: user_id, action: 1 }
 	}).done(function( msg ) {
 		$(".is-read").html("<a onclick=\"IsNotRead(this, '"+user_id+"');return false;\" href=\"#\"><i class=\"glyphicon glyphicon-ok\"></i></a>");
@@ -125,8 +124,44 @@ function ReadAllRss(user_id){
 
 function ChooseRss(id){
 	$("#rss"+id).addClass("active");
-	$(".rss-points-wrap").append('<button name="exclude_rss" onclick="ExcludeRss(this, '+id+'); return false;" value="'+id+'" type="submit" class="btn btn-info">'+$("#rss"+id).html()+'<i class="glyphicon glyphicon-remove"></i></button>');	
+	$(".rss-points-wrap").append('<button name="exclude_rss" id="but'+id+'" onclick="ExcludeRss(this, '+id+'); return false;" value="'+id+'" type="submit" class="btn btn-info">'+$("#rss"+id).html()+'<i class="glyphicon glyphicon-remove"></i></button>');	
 	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {include_rss: id}, function(){
-		
+		$("#rss"+id).attr("onclick", "var elem = document.getElementById('but"+id+"');ExcludeRss(elem, "+id+"); return false;");
 	});
 }
+
+function OpenLink(el, link){
+	$(".navbar-nav li").removeClass("active");
+	$(".ajax-wrapper").load(link + " .ajax-wrapper > *", function(){
+	 	DocumentReady();
+	 	$(el).parent().addClass("active");
+		if(!!(window.history && history.pushState)){
+			history.pushState(null, null, link);
+		}
+	});
+}
+
+function DocumentReady(){
+
+	 var cnt = 0;
+	 $(".select").mCustomScrollbar();
+
+	 $("input[name=button_auth]").on("click", function(){
+	 	$(".auth-panel").load(location.href + " .auth-panel > *", {full_name: $(".full_name").val(), login: $(".login").val(), pass: $(".pass").val(), confirm_pass: $(".confirm_pass").val(), email: $(".email").val(),  id: $(".id").val(), submit_auth: $(".send").val()}, function(){
+	 		DocumentReady();
+	 	});
+	 });
+
+	 $("input[name=button_rss_add]").on("click", function(){
+	 	$(".user-rss-list-wrap").append('<div class="col-md-12"><div class="rss-wrapper alert  alert-info" id="new-rss'+(cnt)+'" role="alert">'+$(".rss_url").val()+'<div onclick=\'DeleteRss('+$(".id").val()+', "'+$(".rss_url").val()+'", "new-rss'+cnt+'")\' class="delete" data-url="'+$(".rss_url").val()+'"><i class="glyphicon glyphicon-remove"></i></div></div></div>');
+	 	cnt++;
+	 	$(".rss_add").load(location.href + " .rss_add > *", {rss_url: $(".rss_url").val(), id: $(".id").val(), submit_rss_add: $(".add").val()}, function(){	
+	 		DocumentReady();
+	 	});
+	 });
+}
+
+
+$(document).ready(function(){
+	 DocumentReady();
+});

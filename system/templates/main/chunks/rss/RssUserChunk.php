@@ -1,7 +1,7 @@
 <?php
 global $_USER;
 ?>
-<div class="row">
+<div class="row user-rss-list-wrap">
 	<?php foreach ($urls as $key => $value) {?>
 	<div class="col-md-12">
 		<div class="rss-wrapper alert  alert-info" id="rss<?php echo $key;?>" role="alert">

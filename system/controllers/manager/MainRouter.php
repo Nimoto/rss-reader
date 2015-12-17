@@ -16,7 +16,7 @@ class MainRouter{
 	public function route($address = null){
 		$address = explode("?", $address);
 		$address = $address[0];
-		if(!$address) $address = "index";
+		if(!$address || $address == "/") $address = "index";
 		if(file_exists(PAGES_PATH.$this->pages[$address]) && $this->pages[$address])
 			include(PAGES_PATH.$this->pages[$address]);
 		else if(file_exists(PAGES_PATH.str_replace("/", "", $address).".php")){
