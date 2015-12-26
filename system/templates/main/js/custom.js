@@ -1,3 +1,16 @@
+function  getWindowHeight(){
+           var windowWidth, windowHeight;
+           if (self.innerHeight) {
+                   windowHeight = self.innerHeight;
+           } else if (document.documentElement && document.documentElement.clientHeight) {
+                   windowHeight = document.documentElement.clientHeight;
+           } else if (document.body) {
+                   windowHeight = document.body.clientHeight;
+           }
+           return windowHeight;
+    }
+
+
 function DeleteRss(user_id, url, parent_id){
 	$.ajax({
 	  type: "POST",
@@ -9,10 +22,16 @@ function DeleteRss(user_id, url, parent_id){
 	return false;
 }
 
-function RefreshRss(){	
+function RefreshRss(){		
 	$(".refresh").html("<img class='loader' src='/rss/system/templates/main/img/loader.png'>");
-	$(".rss-items-wrap").load(location.href + " .rss-items-wrap > *", {refresh: 1}, function(){
-		$(".refresh").html("<i class=\"glyphicon glyphicon-refresh\"></i>");		
+	$.ajax({
+	  type: "POST",
+	  url: "/rss/include/ajax/updateRss.php",
+	  data: { refresh: 1 }
+	}).done(function( html ) {
+	  $(".rss-items-wrap").html(html);
+	  $(".refresh").html("<i class=\"glyphicon glyphicon-refresh\"></i>");
+	  DocumentReady();
 	});
 	return false;
 }
@@ -131,6 +150,7 @@ function ChooseRss(id){
 }
 
 function OpenLink(el, link){
+	console.log("open link" + link);
 	$(".navbar-nav li").removeClass("active");
 	$(".ajax-wrapper").load(link + " .ajax-wrapper > *", function(){
 	 	DocumentReady();
@@ -141,8 +161,13 @@ function OpenLink(el, link){
 	});
 }
 
-function DocumentReady(){
+function setWrapHeight(){
+	 var page_h = getWindowHeight();
+	 $(".wrapper").css("min-height", (page_h - 120) + "px");
+}
 
+function DocumentReady(){
+	 setWrapHeight();
 	 var cnt = 0;
 	 $(".select").mCustomScrollbar();
 
@@ -164,4 +189,8 @@ function DocumentReady(){
 
 $(document).ready(function(){
 	 DocumentReady();
+});
+
+$(window).on("resize", function(){ 
+	setWrapHeight();
 });

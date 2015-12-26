@@ -1,8 +1,16 @@
 <?php
 session_start();
-if(!$_COOKIE["login"] && $_SESSION["login"]){
+
+if($_GET["logout"] == "yes"){	
+	setcookie("login", '', time() - 3600, '/');
+	unset($_SESSION["login"]);
+	header("Location:/", true, 301);
+}else if(!$_COOKIE["login"] && $_SESSION["login"]){
 	setcookie("login", $_SESSION["login"]);
+	header("Location:/", true, 301);
 }
+
+
 //error_reporting(E_ERROR);
 require "settings.php";
 include(CONTROLLER_PATH."manager/DataBaseController.php");

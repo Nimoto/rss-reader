@@ -263,14 +263,21 @@ class DataBaseController{
 				"rss_url" => $arParams["url"]
 			);
 		$fields = $this->select("rss", $arFields);
-		if($fields){
-			$arFields = array(
+		if(is_array($fields)){
+			foreach ($fields as $field){
+				$arFieldsItems = array(
+						"user_id" => $arParams["user_id"],
+						"ID_rss" => $field["ID"],
+					);
+				$this->delete("rss_items", $arFieldsItems);
+				$arFields = array(
 					"user_id" => $arParams["user_id"],
-					"ID_rss" => $fields[0]["ID"],
+					"rss_url" => $arParams["url"],
+					"ID" => $field["ID"],
 				);
-			$this->delete("rss_items", $arFields);
+				$this->delete("rss", $arFields);
+			}
 		}
-		$this->delete("rss", $arFields);
 	}
 
 	public function deleteRssItems($rss){

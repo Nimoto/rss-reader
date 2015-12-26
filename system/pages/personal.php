@@ -3,11 +3,6 @@ global $_USER;
 if(empty($_USER)){
 	echo '<meta http-equiv="refresh" content="0;URL=/">';
 }
-if($_GET["logout"] == "yes"){
-	unset($_SESSION["login"]);
-	unset($_USER);
-	echo '<meta http-equiv="refresh" content="0;URL=/">';
-}
 ?>
 <div class="row">
 	<div class="col-md-12">

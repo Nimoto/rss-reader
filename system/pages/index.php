@@ -1,9 +1,5 @@
 <?php
 global $_USER;
-if($_GET["logout"] == "yes"){
-	unset($_COOKIE["login"]);
-	unset($_USER);
-}
 if(!$_USER){?>
 <div class="row">
 	<div class="col-md-4"></div>
@@ -125,11 +121,7 @@ if(!$_USER){?>
 			</div>
 		</div>
 	</div>
-	<?php if($_POST["refresh"] == 1){
-		$rss_controller = new RssController($_USER->getProperty("id"));
-		$rss_controller->updateRss();
-	}
-
+<?php
 	if($_SESSION["sort"]["date"]){
 		$arSort["date"] = $_SESSION["sort"]["date"];
 	}

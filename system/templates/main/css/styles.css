@@ -264,3 +264,11 @@ p.lead > *{
 	height: 34px;
 	background: #fff;
 }
+
+footer{
+  height: 50px;
+  background: #101010;
+}
+.my-link{
+  margin-top: 22px;
+}
