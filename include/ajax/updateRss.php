@@ -1,5 +1,5 @@
 <?php
-include($_SERVER["DOCUMENT_ROOT"]."/rss/system/prolog.php");
+include($_SERVER["DOCUMENT_ROOT"]."/system/prolog.php");
 global $_USER;
 if($_POST["refresh"] == 1){
 	$rss_controller = new RssController($_USER->getProperty("id"));

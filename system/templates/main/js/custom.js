@@ -14,7 +14,7 @@ function  getWindowHeight(){
 function DeleteRss(user_id, url, parent_id){
 	$.ajax({
 	  type: "POST",
-	  url: "/rss/include/ajax/deleteRss.php",
+	  url: "/include/ajax/deleteRss.php",
 	  data: { user_id: user_id, url: url }
 	}).done(function( msg ) {
 	  $("#"+parent_id).remove();
@@ -23,10 +23,10 @@ function DeleteRss(user_id, url, parent_id){
 }
 
 function RefreshRss(){		
-	$(".refresh").html("<img class='loader' src='/rss/system/templates/main/img/loader.png'>");
+	$(".refresh").html("<img class='loader' src='/system/templates/main/img/loader.png'>");
 	$.ajax({
 	  type: "POST",
-	  url: "/rss/include/ajax/updateRss.php",
+	  url: "/include/ajax/updateRss.php",
 	  data: { refresh: 1 }
 	}).done(function( html ) {
 	  $(".rss-items-wrap").html(html);
@@ -101,7 +101,7 @@ function Paginator(el){
 function IsRead(el, id){
 	$.ajax({
 	  type: "POST",
-	  url: "/rss/include/ajax/isRead.php",
+	  url: "/include/ajax/isRead.php",
 	  data: { id: id, action: 1 }
 	}).done(function( msg ) {
 		if($(".read-f").val() == "-1"){
@@ -118,7 +118,7 @@ function IsRead(el, id){
 function IsNotRead(el, id){
 	$.ajax({
 	  type: "POST",
-	  url: "/rss/include/ajax/isRead.php",
+	  url: "/include/ajax/isRead.php",
 	  data: { id: id, action: 0 }
 	}).done(function( msg ) {
 		$(el).parent().html("<a onclick=\"IsRead(this, '"+id+"');return false;\" href=\"#\">отметить как<br />прочитанное</a>");
@@ -131,7 +131,7 @@ function IsNotRead(el, id){
 function ReadAllRss(user_id){
 	$.ajax({
 	  type: "POST",
-	  url: "/rss/include/ajax/isRead.php",
+	  url: "/include/ajax/isRead.php",
 	  data: { user_id: user_id, action: 1 }
 	}).done(function( msg ) {
 		$(".is-read").html("<a onclick=\"IsNotRead(this, '"+user_id+"');return false;\" href=\"#\"><i class=\"glyphicon glyphicon-ok\"></i></a>");

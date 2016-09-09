@@ -34,7 +34,7 @@ include(CONTROLLER_PATH."rss/RssController.php");
 include(CONTROLLER_PATH."rss/RssItemsController.php");
 include(CONTROLLER_PATH."paginator/PaginatorController.php");
 
-$_ADDRESS = str_replace("/rss", "", $_SERVER["REQUEST_URI"]);
+$_ADDRESS = $_SERVER["REQUEST_URI"];
 
 
 $pages = array(
